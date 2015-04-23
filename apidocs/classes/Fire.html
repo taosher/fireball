@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.0</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -43,19 +43,19 @@
                             <li><a class="type" href="../classes/_CallbacksHandler.html">_CallbacksHandler</a></li>
                             <li><a class="type" href="../classes/_DeserializeInfo.html">_DeserializeInfo</a></li>
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
+                            <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
                             <li><a class="type" href="../classes/BitmapFont.html">BitmapFont</a></li>
                             <li><a class="type" href="../classes/BitmapText.html">BitmapText</a></li>
-                            <li><a class="type" href="../classes/BitmapText.TextAlign.html">BitmapText.TextAlign</a></li>
-                            <li><a class="type" href="../classes/BitmapText.TextAnchor.html">BitmapText.TextAnchor</a></li>
                             <li><a class="type" href="../classes/CallbacksInvoker.html">CallbacksInvoker</a></li>
                             <li><a class="type" href="../classes/Camera.html">Camera</a></li>
                             <li><a class="type" href="../classes/Color.html">Color</a></li>
                             <li><a class="type" href="../classes/Component.html">Component</a></li>
                             <li><a class="type" href="../classes/ContentStrategyType.html">ContentStrategyType</a></li>
+                            <li><a class="type" href="../classes/Editor.html">Editor</a></li>
                             <li><a class="type" href="../classes/Engine.html">Engine</a></li>
                             <li><a class="type" href="../classes/Entity.html">Entity</a></li>
                             <li><a class="type" href="../classes/EqualToFrame.html">EqualToFrame</a></li>
@@ -64,6 +64,7 @@
                             <li><a class="type" href="../classes/Fire.html">Fire</a></li>
                             <li><a class="type" href="../classes/FixedHeight.html">FixedHeight</a></li>
                             <li><a class="type" href="../classes/FObject.html">FObject</a></li>
+                            <li><a class="type" href="../classes/FontType.html">FontType</a></li>
                             <li><a class="type" href="../classes/HashObject.html">HashObject</a></li>
                             <li><a class="type" href="../classes/Input.html">Input</a></li>
                             <li><a class="type" href="../classes/Intersection.html">Intersection</a></li>
@@ -88,6 +89,8 @@
                             <li><a class="type" href="../classes/SpriteAnimationClip.WrapMode.html">SpriteAnimationClip.WrapMode</a></li>
                             <li><a class="type" href="../classes/SpriteAnimationState.html">SpriteAnimationState</a></li>
                             <li><a class="type" href="../classes/SpriteRenderer.html">SpriteRenderer</a></li>
+                            <li><a class="type" href="../classes/TextAlign.html">TextAlign</a></li>
+                            <li><a class="type" href="../classes/TextAnchor.html">TextAnchor</a></li>
                             <li><a class="type" href="../classes/Texture.html">Texture</a></li>
                             <li><a class="type" href="../classes/Texture.FilterMode.html">Texture.FilterMode</a></li>
                             <li><a class="type" href="../classes/Texture.WrapMode.html">Texture.WrapMode</a></li>
@@ -268,6 +271,10 @@
                                     <a href="#method__JsonLoader">_JsonLoader</a>
                 
                                 </li>
+                                <li class="index-item method private">
+                                    <a href="#method__throw">_throw</a>
+                
+                                </li>
                                 <li class="index-item method">
                                     <a href="#method_addComponentMenu">addComponentMenu</a>
                 
@@ -400,18 +407,6 @@
                                 </li>
                                 <li class="index-item method">
                                     <a href="#method_rgb2hsv">rgb2hsv</a>
-                
-                                </li>
-                                <li class="index-item method">
-                                    <a href="#method_serialize">serialize</a>
-                
-                                </li>
-                                <li class="index-item method">
-                                    <a href="#method_serialize.asAsset">serialize.asAsset</a>
-                
-                                </li>
-                                <li class="index-item method">
-                                    <a href="#method_serialize.setName">serialize.setName</a>
                 
                                 </li>
                                 <li class="index-item method private">
@@ -1285,6 +1280,65 @@
                             
                                 </div>
                             </div>
+                            <a name="method__throw" class="anchor-link"></a>
+                            <div class="method item private">
+                                <h3 class="name"><code>_throw</code>
+                            
+                                    <div class="args">
+                                        <span class="paren">(</span><ul class="args-list inline commas">
+                                            <li class="arg">
+                                                    <code>error</code>
+                                            </li>
+                                        </ul><span class="paren">)</span>
+                                    </div>
+                            
+                            
+                            
+                                    <span class="flag private">private</span>
+                            
+                            
+                            
+                            
+                            
+                                </h3>
+                            
+                                <div class="meta">
+                                            <p>
+                                            Defined in
+                                    <a href="../files/utils_api_engine_misc.js.html#l5"><code>utils&#x2F;api&#x2F;engine&#x2F;misc.js:5</code></a>
+                                    </p>
+                            
+                            
+                            
+                                </div>
+                            
+                                <div class="extended-detail">
+                            
+                                    <div class="description">
+                                        <p>show error stacks in unit tests</p>
+                            
+                                    </div>
+                            
+                                        <div class="params">
+                                            <h4>Parameters:</h4>
+                            
+                                            <ul class="params-list">
+                                                <li class="param">
+                                                        <code class="param-name">error</code>
+                                                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Error" class="crosslink external" target="_blank">Error</a></span>
+                            
+                            
+                                                    <div class="param-description">
+                                                         
+                                                    </div>
+                            
+                                                </li>
+                                            </ul>
+                                        </div>
+                            
+                            
+                                </div>
+                            </div>
                             <a name="method_addComponentMenu" class="anchor-link"></a>
                             <div class="method item">
                                 <h3 class="name"><code>addComponentMenu</code>
@@ -1407,10 +1461,9 @@
                                 </h3>
                             
                                 <div class="meta">
-                                                <p>Provided by the <a href="../modules/Editor.html" class="module-name">Editor</a> module.</p>
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_core_pre-define.js.html#l12"><code>utils&#x2F;api&#x2F;core&#x2F;pre-define.js:12</code></a>
+                                    <a href="../files/utils_api_core_pre-define.js.html#l9"><code>utils&#x2F;api&#x2F;core&#x2F;pre-define.js:9</code></a>
                                     </p>
                             
                             
@@ -2333,7 +2386,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_core_core.js.html#l386"><code>utils&#x2F;api&#x2F;core&#x2F;core.js:386</code></a>
+                                    <a href="../files/utils_api_core_core.js.html#l427"><code>utils&#x2F;api&#x2F;core&#x2F;core.js:427</code></a>
                                     </p>
                             
                             
@@ -2611,7 +2664,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_core_core.js.html#l366"><code>utils&#x2F;api&#x2F;core&#x2F;core.js:366</code></a>
+                                    <a href="../files/utils_api_core_core.js.html#l407"><code>utils&#x2F;api&#x2F;core&#x2F;core.js:407</code></a>
                                     </p>
                             
                             
@@ -3296,7 +3349,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_core_core.js.html#l342"><code>utils&#x2F;api&#x2F;core&#x2F;core.js:342</code></a>
+                                    <a href="../files/utils_api_core_core.js.html#l383"><code>utils&#x2F;api&#x2F;core&#x2F;core.js:383</code></a>
                                     </p>
                             
                             
@@ -3608,7 +3661,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_core_core.js.html#l332"><code>utils&#x2F;api&#x2F;core&#x2F;core.js:332</code></a>
+                                    <a href="../files/utils_api_core_core.js.html#l373"><code>utils&#x2F;api&#x2F;core&#x2F;core.js:373</code></a>
                                     </p>
                             
                             
@@ -4288,232 +4341,6 @@
                             
                                 </div>
                             </div>
-                            <a name="method_serialize" class="anchor-link"></a>
-                            <div class="method item">
-                                <h3 class="name"><code>serialize</code>
-                            
-                                    <div class="args">
-                                        <span class="paren">(</span><ul class="args-list inline commas">
-                                            <li class="arg">
-                                                    <code>obj</code>
-                                            </li>
-                                            <li class="arg">
-                                                    <code class="optional">[options=null]</code>
-                                            </li>
-                                        </ul><span class="paren">)</span>
-                                    </div>
-                            
-                                    <span class="returns-inline">
-                                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a> | <a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
-                                    </span>
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                                </h3>
-                            
-                                <div class="meta">
-                                            <p>
-                                            Defined in
-                                    <a href="../files/utils_api_core_serialize.js.html#l336"><code>utils&#x2F;api&#x2F;core&#x2F;serialize.js:336</code></a>
-                                    </p>
-                            
-                            
-                            
-                                </div>
-                            
-                                <div class="extended-detail">
-                            
-                                    <div class="description">
-                                        <p>Serialize Fire.Asset to a json string</p>
-                            
-                                    </div>
-                            
-                                        <div class="params">
-                                            <h4>Parameters:</h4>
-                            
-                                            <ul class="params-list">
-                                                <li class="param">
-                                                        <code class="param-name">obj</code>
-                                                        <span class="type"><a href="../classes/Asset.html" class="crosslink">Asset</a></span>
-                            
-                            
-                                                    <div class="param-description">
-                                                        <ul>
-                            <li>The object to serialize</li>
-                            </ul>
-                            
-                                                    </div>
-                            
-                                                </li>
-                                                <li class="param">
-                                                        <code class="param-name optional">[options=null]</code>
-                                                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
-                                                        <span class="flag optional" title="This parameter is optional.">optional</span>
-                            
-                            
-                                                    <div class="param-description">
-                                                         
-                                                    </div>
-                            
-                                                </li>
-                                            </ul>
-                                        </div>
-                            
-                                        <div class="returns">
-                                            <h4>Returns:</h4>
-                            
-                                            <div class="returns-description">
-                                                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a> | <a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>:
-                                                    <p>The json string to represent the object or json object if dontStringify is true</p>
-                            
-                                            </div>
-                                        </div>
-                            
-                                </div>
-                            </div>
-                            <a name="method_serialize.asAsset" class="anchor-link"></a>
-                            <div class="method item">
-                                <h3 class="name"><code>serialize.asAsset</code>
-                            
-                                    <div class="args">
-                                        <span class="paren">(</span><ul class="args-list inline commas">
-                                            <li class="arg">
-                                                    <code>uuid</code>
-                                            </li>
-                                        </ul><span class="paren">)</span>
-                                    </div>
-                            
-                                    <span class="returns-inline">
-                                        <span class="type"><a href="../classes/Asset.html" class="crosslink">Asset</a></span>
-                                    </span>
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                                </h3>
-                            
-                                <div class="meta">
-                                            <p>
-                                            Defined in
-                                    <a href="../files/utils_api_core_serialize.js.html#l366"><code>utils&#x2F;api&#x2F;core&#x2F;serialize.js:366</code></a>
-                                    </p>
-                            
-                            
-                            
-                                </div>
-                            
-                                <div class="extended-detail">
-                            
-                                    <div class="description">
-                                        <p>Create a pseudo object which will be force serialized as a reference to any asset by specified uuid.</p>
-                            
-                                    </div>
-                            
-                                        <div class="params">
-                                            <h4>Parameters:</h4>
-                            
-                                            <ul class="params-list">
-                                                <li class="param">
-                                                        <code class="param-name">uuid</code>
-                                                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                            
-                            
-                                                    <div class="param-description">
-                                                         
-                                                    </div>
-                            
-                                                </li>
-                                            </ul>
-                                        </div>
-                            
-                                        <div class="returns">
-                                            <h4>Returns:</h4>
-                            
-                                            <div class="returns-description">
-                                                        <span class="type"><a href="../classes/Asset.html" class="crosslink">Asset</a></span>:
-                                            </div>
-                                        </div>
-                            
-                                </div>
-                            </div>
-                            <a name="method_serialize.setName" class="anchor-link"></a>
-                            <div class="method item">
-                                <h3 class="name"><code>serialize.setName</code>
-                            
-                                    <div class="args">
-                                        <span class="paren">(</span><ul class="args-list inline commas">
-                                            <li class="arg">
-                                                    <code>jsonObj</code>
-                                            </li>
-                                            <li class="arg">
-                                                    <code>name</code>
-                                            </li>
-                                        </ul><span class="paren">)</span>
-                                    </div>
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                            
-                                </h3>
-                            
-                                <div class="meta">
-                                            <p>
-                                            Defined in
-                                    <a href="../files/utils_api_core_serialize.js.html#l381"><code>utils&#x2F;api&#x2F;core&#x2F;serialize.js:381</code></a>
-                                    </p>
-                            
-                            
-                            
-                                </div>
-                            
-                                <div class="extended-detail">
-                            
-                                    <div class="description">
-                                        <p>Set the asset&#39;s name directly in JSON object</p>
-                            
-                                    </div>
-                            
-                                        <div class="params">
-                                            <h4>Parameters:</h4>
-                            
-                                            <ul class="params-list">
-                                                <li class="param">
-                                                        <code class="param-name">jsonObj</code>
-                                                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
-                            
-                            
-                                                    <div class="param-description">
-                                                         
-                                                    </div>
-                            
-                                                </li>
-                                                <li class="param">
-                                                        <code class="param-name">name</code>
-                                                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
-                            
-                            
-                                                    <div class="param-description">
-                                                         
-                                                    </div>
-                            
-                                                </li>
-                                            </ul>
-                                        </div>
-                            
-                            
-                                </div>
-                            </div>
                             <a name="method_Tooltip" class="anchor-link"></a>
                             <div class="method item private">
                                 <h3 class="name"><code>Tooltip</code>
@@ -4695,7 +4522,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_core_core.js.html#l354"><code>utils&#x2F;api&#x2F;core&#x2F;core.js:354</code></a>
+                                    <a href="../files/utils_api_core_core.js.html#l395"><code>utils&#x2F;api&#x2F;core&#x2F;core.js:395</code></a>
                                     </p>
                             
                             

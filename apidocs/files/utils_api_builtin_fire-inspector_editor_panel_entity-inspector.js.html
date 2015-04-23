@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>utils/api/builtin/fire-inspector/editor/panel/entity-inspector.js - Fireball Engine API</title>
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="../assets/vendor/yui-min.js"></script>
+</head>
+<body>
+
+<div id="doc">
+    <header class="main-header">
+        <div class="content">
+            <div class="project-title">
+                    <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
+                    <p class="description">Fireball is the game engine for the future.</p>
+            </div>
+            <ul class="jump-links">
+                <li><a href="#index" class="index-jump-link">index</a></li>
+                <li><a href="#top" class="top-jump-link">top</a></li>
+            </ul>
+        </div>
+    </header>
+    <div id="bd" class="main-body">
+
+        <div id="docs-sidebar" class="sidebar apidocs">
+            <div id="api-list">
+                <div id="api-tabview" class="tabview">
+                    <ul class="tabs">
+                        <li><a href="#api-classes">Classes</a></li>
+                        <li><a href="#api-modules">Modules</a></li>
+                    </ul>
+            
+                    <div id="api-tabview-filter">
+                        <input type="search" id="api-filter" placeholder="Type to filter APIs">
+                    </div>
+            
+                    <div id="api-tabview-panel">
+                        <ul id="api-classes" class="apis classes">
+                            <li><a class="type" href="../classes/_CallbacksHandler.html">_CallbacksHandler</a></li>
+                            <li><a class="type" href="../classes/_DeserializeInfo.html">_DeserializeInfo</a></li>
+                            <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
+                            <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
+                            <li><a class="type" href="../classes/Asset.html">Asset</a></li>
+                            <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
+                            <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
+                            <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
+                            <li><a class="type" href="../classes/BitmapFont.html">BitmapFont</a></li>
+                            <li><a class="type" href="../classes/BitmapText.html">BitmapText</a></li>
+                            <li><a class="type" href="../classes/CallbacksInvoker.html">CallbacksInvoker</a></li>
+                            <li><a class="type" href="../classes/Camera.html">Camera</a></li>
+                            <li><a class="type" href="../classes/Color.html">Color</a></li>
+                            <li><a class="type" href="../classes/Component.html">Component</a></li>
+                            <li><a class="type" href="../classes/ContentStrategyType.html">ContentStrategyType</a></li>
+                            <li><a class="type" href="../classes/Editor.html">Editor</a></li>
+                            <li><a class="type" href="../classes/Engine.html">Engine</a></li>
+                            <li><a class="type" href="../classes/Entity.html">Entity</a></li>
+                            <li><a class="type" href="../classes/EqualToFrame.html">EqualToFrame</a></li>
+                            <li><a class="type" href="../classes/Event.html">Event</a></li>
+                            <li><a class="type" href="../classes/EventTarget.html">EventTarget</a></li>
+                            <li><a class="type" href="../classes/Fire.html">Fire</a></li>
+                            <li><a class="type" href="../classes/FixedHeight.html">FixedHeight</a></li>
+                            <li><a class="type" href="../classes/FObject.html">FObject</a></li>
+                            <li><a class="type" href="../classes/FontType.html">FontType</a></li>
+                            <li><a class="type" href="../classes/HashObject.html">HashObject</a></li>
+                            <li><a class="type" href="../classes/Input.html">Input</a></li>
+                            <li><a class="type" href="../classes/Intersection.html">Intersection</a></li>
+                            <li><a class="type" href="../classes/JS.html">JS</a></li>
+                            <li><a class="type" href="../classes/KeyboardEvent.html">KeyboardEvent</a></li>
+                            <li><a class="type" href="../classes/LoadManager.html">LoadManager</a></li>
+                            <li><a class="type" href="../classes/Math.html">Math</a></li>
+                            <li><a class="type" href="../classes/Matrix23.html">Matrix23</a></li>
+                            <li><a class="type" href="../classes/ModifierKeyStates.html">ModifierKeyStates</a></li>
+                            <li><a class="type" href="../classes/MouseEvent.html">MouseEvent</a></li>
+                            <li><a class="type" href="../classes/NoScale.html">NoScale</a></li>
+                            <li><a class="type" href="../classes/Path.html">Path</a></li>
+                            <li><a class="type" href="../classes/Rect.html">Rect</a></li>
+                            <li><a class="type" href="../classes/Renderer.html">Renderer</a></li>
+                            <li><a class="type" href="../classes/Screen.html">Screen</a></li>
+                            <li><a class="type" href="../classes/Screen.ContainerStrategy.html">Screen.ContainerStrategy</a></li>
+                            <li><a class="type" href="../classes/Screen.ContentStrategy.html">Screen.ContentStrategy</a></li>
+                            <li><a class="type" href="../classes/Sprite.html">Sprite</a></li>
+                            <li><a class="type" href="../classes/SpriteAnimation.html">SpriteAnimation</a></li>
+                            <li><a class="type" href="../classes/SpriteAnimationClip.html">SpriteAnimationClip</a></li>
+                            <li><a class="type" href="../classes/SpriteAnimationClip.StopAction.html">SpriteAnimationClip.StopAction</a></li>
+                            <li><a class="type" href="../classes/SpriteAnimationClip.WrapMode.html">SpriteAnimationClip.WrapMode</a></li>
+                            <li><a class="type" href="../classes/SpriteAnimationState.html">SpriteAnimationState</a></li>
+                            <li><a class="type" href="../classes/SpriteRenderer.html">SpriteRenderer</a></li>
+                            <li><a class="type" href="../classes/TextAlign.html">TextAlign</a></li>
+                            <li><a class="type" href="../classes/TextAnchor.html">TextAnchor</a></li>
+                            <li><a class="type" href="../classes/Texture.html">Texture</a></li>
+                            <li><a class="type" href="../classes/Texture.FilterMode.html">Texture.FilterMode</a></li>
+                            <li><a class="type" href="../classes/Texture.WrapMode.html">Texture.WrapMode</a></li>
+                            <li><a class="type" href="../classes/Time.html">Time</a></li>
+                            <li><a class="type" href="../classes/Transform.html">Transform</a></li>
+                            <li><a class="type" href="../classes/Vec2.html">Vec2</a></li>
+                        </ul>
+            
+                        <ul id="api-modules" class="apis modules">
+                            <li><a class="module" href="../modules/Editor.html">Editor</a></li>
+                            <li><a class="module" href="../modules/Fire.html">Fire</a></li>
+                            <li><a class="module" href="../modules/Math.html">Math</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="docs-main" class="apidocs">
+            <div class="content container">
+                <h1 class="file-heading">File: utils/api/builtin/fire-inspector/editor/panel/entity-inspector.js</h1>
+                
+                <div class="file">
+                    <pre class="code prettyprint linenums">
+                /**
+                 * @module Fire
+                 * @class Fire
+                 */
+                Polymer(EditorUI.mixin({
+                    publish: {
+                        highlighted: {
+                            value: false,
+                            reflect: true,
+                        },
+                
+                        // droppable
+                        droppable: &#x27;asset&#x27;,
+                        &quot;single-drop&quot;: true,
+                    },
+                
+                    created: function () {
+                        this.target = null;
+                    },
+                
+                    ready: function () {
+                        this._initDroppable(this.$.fields);
+                    },
+                
+                    refresh: function () {
+                        this.$.fields.refresh();
+                    },
+                
+                    targetChanged: function () {
+                        this.$.fields.target = this.target;
+                        this.refresh();
+                    },
+                
+                    getAddCompMenuTemplate: function () {
+                        function findMenu (menuArray, label) {
+                            for (var i = 0; i &lt; menuArray.length; i++) {
+                                if (menuArray[i].label === label) {
+                                    return menuArray[i];
+                                }
+                            }
+                            return null;
+                        }
+                        var template = [];
+                        var items = Fire._componentMenuItems;
+                        // enumerate components
+                        for (var i = 0; i &lt; items.length; i++) {
+                            var item = items[i];
+                            var subPathes = item.menuPath.split(&#x27;/&#x27;);
+                
+                            var prio = item.priority || 0;
+                            // enumerate menu path
+                            var newMenu = null;
+                            for (var p = 0, parent = template; p &lt; subPathes.length; p++) {
+                                var label = subPathes[p];
+                                if (!label) {
+                                    continue;
+                                }
+                                var parentMenuArray = parent === template ? template : parent.submenu;
+                                var menu;
+                                if (parentMenuArray) {
+                                    if (parentMenuArray.length &gt; 0) {
+                                         menu = findMenu(parentMenuArray, label);
+                                    }
+                                    if (menu) {
+                                        if (menu.submenu) {
+                                            parent = menu;
+                                            continue;
+                                        }
+                                        else {
+                                            Fire.error(&#x27;Component menu path %s conflict&#x27;, item.menuPath);
+                                            break;
+                                        }
+                                    }
+                                }
+                                // create
+                                newMenu = {
+                                    label: label,
+                                    priority: prio
+                                };
+                                if ( !parentMenuArray ) {
+                                    parent.submenu = [newMenu];
+                                }
+                                else {
+                                    var length = parentMenuArray.length;
+                                    if (length &gt; 0) {
+                                        // find from back to front to get the one less than supplied priority,
+                                        // then return the last one.
+                                        for (var j = length - 1; j &gt;= 0; j--) {
+                                            if (parentMenuArray[j].priority &gt; newMenu.priority) {
+                                                // end loop
+                                                if (j === 0) {
+                                                    parentMenuArray.unshift(newMenu);
+                                                }
+                                            }
+                                            else {
+                                                parentMenuArray.splice(j + 1, 0, newMenu);
+                                                break;
+                                            }
+                                        }
+                                    }
+                                    else {
+                                        parentMenuArray.push(newMenu);
+                                    }
+                                }
+                                parent = newMenu;
+                            }
+                            if (newMenu &amp;&amp; !newMenu.submenu) {
+                                // click callback
+                                // jshint ignore:start
+                                newMenu.click = (function (component) {
+                                    setImmediate(function () {
+                                        this.addComponent(component);
+                                    }.bind(this));
+                                }).bind(this, item.component);
+                                // jshint ignore:end
+                            }
+                            else {
+                                Fire.error(&#x27;Invalid component menu path: &#x27; + item.menuPath);
+                            }
+                        }
+                        return template;
+                    },
+                
+                    addComponent: function (componentCtor) {
+                        Editor.sendToMainWindow(&#x27;engine:add-component&#x27;, {
+                            &#x27;entity-id&#x27;: this.target.id,
+                            &#x27;component-class-id&#x27;: Fire.JS._getClassId(componentCtor)
+                        });
+                    },
+                
+                    fieldsChangedAction: function ( event, detail ) {
+                        event.stopPropagation();
+                
+                        if ( detail instanceof Fire.Asset ) {
+                            Fire.AssetLibrary.cacheAsset(detail);
+                        }
+                        else if ( Array.isArray(detail) ) {
+                            for ( var i = 0; i &lt; detail.length; ++i ) {
+                                var item = detail[i];
+                                if ( item instanceof Fire.Asset ) {
+                                    Fire.AssetLibrary.cacheAsset(item);
+                                }
+                            }
+                        }
+                
+                        Editor.sendToMainWindow( &#x27;entity:inspector-dirty&#x27; );
+                        Editor.sendToWindows( &#x27;scene:dirty&#x27; );
+                    },
+                
+                    addComponentAction: function ( event ) {
+                        event.stopPropagation();
+                
+                        var Remote = require(&#x27;remote&#x27;);
+                        var Menu = Remote.require(&#x27;menu&#x27;);
+                
+                        var rect = this.$.btnAddComp.getBoundingClientRect();
+                        var x = rect.left;
+                        var y = rect.bottom;
+                
+                        var template = this.getAddCompMenuTemplate();
+                        var menu = Menu.buildFromTemplate(template);
+                        menu.popup(Remote.getCurrentWindow(), Math.floor(x), Math.floor(y));
+                    },
+                
+                    dropAreaEnterAction: function (event) {
+                        event.stopPropagation();
+                
+                        var classDef = Fire.JS.getClassByName(this.type);
+                        var dragItems = event.detail.dragItems;
+                        var uuid = dragItems[0];
+                
+                        var metaJson = Editor.AssetDB.loadMetaJson(uuid);
+                        if (metaJson) {
+                            Fire.AssetLibrary.loadMeta(metaJson, function ( err, meta ) {
+                                if ( meta instanceof Editor.ScriptAssetMeta ) {
+                                    this.highlighted = true;
+                                }
+                            }.bind(this));
+                        }
+                    },
+                
+                    dropAreaLeaveAction: function (event) {
+                        event.stopPropagation();
+                        this.highlighted = false;
+                    },
+                
+                    dropAreaAcceptAction: function (event) {
+                        event.stopPropagation();
+                
+                        if ( this.highlighted ) {
+                            this.highlighted = false;
+                
+                            var dragItems = event.detail.dragItems;
+                            var uuid = dragItems[0];
+                
+                            // add component
+                            var classID = Editor.compressUuid(uuid);
+                            var ctor = Fire.JS._getClassById(classID);
+                            if ( ctor ) {
+                                this.addComponent(ctor);
+                            }
+                        }
+                    },
+                
+                    // DISABLE:
+                    // dropAreaDragoverAction: function (event) {
+                    //     event.stopPropagation();
+                
+                    //     if ( this.highlighted ) {
+                    //         EditorUI.DragDrop.allowDrop( event.detail.dataTransfer, true );
+                    //         EditorUI.DragDrop.updateDropEffect(event.detail.dataTransfer, &quot;copy&quot;);
+                    //     }
+                    //     else {
+                    //         EditorUI.DragDrop.allowDrop( event.detail.dataTransfer, false );
+                    //     }
+                    // },
+                
+                }, EditorUI.droppable));
+                
+                    </pre>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/vendor/jquery.min.js"></script>
+<script src="../assets/js/jquery-offscreen-trigger.js"></script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

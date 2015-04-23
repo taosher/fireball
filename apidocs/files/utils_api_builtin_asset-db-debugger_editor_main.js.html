@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.0</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -43,19 +43,19 @@
                             <li><a class="type" href="../classes/_CallbacksHandler.html">_CallbacksHandler</a></li>
                             <li><a class="type" href="../classes/_DeserializeInfo.html">_DeserializeInfo</a></li>
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
+                            <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
                             <li><a class="type" href="../classes/BitmapFont.html">BitmapFont</a></li>
                             <li><a class="type" href="../classes/BitmapText.html">BitmapText</a></li>
-                            <li><a class="type" href="../classes/BitmapText.TextAlign.html">BitmapText.TextAlign</a></li>
-                            <li><a class="type" href="../classes/BitmapText.TextAnchor.html">BitmapText.TextAnchor</a></li>
                             <li><a class="type" href="../classes/CallbacksInvoker.html">CallbacksInvoker</a></li>
                             <li><a class="type" href="../classes/Camera.html">Camera</a></li>
                             <li><a class="type" href="../classes/Color.html">Color</a></li>
                             <li><a class="type" href="../classes/Component.html">Component</a></li>
                             <li><a class="type" href="../classes/ContentStrategyType.html">ContentStrategyType</a></li>
+                            <li><a class="type" href="../classes/Editor.html">Editor</a></li>
                             <li><a class="type" href="../classes/Engine.html">Engine</a></li>
                             <li><a class="type" href="../classes/Entity.html">Entity</a></li>
                             <li><a class="type" href="../classes/EqualToFrame.html">EqualToFrame</a></li>
@@ -64,6 +64,7 @@
                             <li><a class="type" href="../classes/Fire.html">Fire</a></li>
                             <li><a class="type" href="../classes/FixedHeight.html">FixedHeight</a></li>
                             <li><a class="type" href="../classes/FObject.html">FObject</a></li>
+                            <li><a class="type" href="../classes/FontType.html">FontType</a></li>
                             <li><a class="type" href="../classes/HashObject.html">HashObject</a></li>
                             <li><a class="type" href="../classes/Input.html">Input</a></li>
                             <li><a class="type" href="../classes/Intersection.html">Intersection</a></li>
@@ -88,6 +89,8 @@
                             <li><a class="type" href="../classes/SpriteAnimationClip.WrapMode.html">SpriteAnimationClip.WrapMode</a></li>
                             <li><a class="type" href="../classes/SpriteAnimationState.html">SpriteAnimationState</a></li>
                             <li><a class="type" href="../classes/SpriteRenderer.html">SpriteRenderer</a></li>
+                            <li><a class="type" href="../classes/TextAlign.html">TextAlign</a></li>
+                            <li><a class="type" href="../classes/TextAnchor.html">TextAnchor</a></li>
                             <li><a class="type" href="../classes/Texture.html">Texture</a></li>
                             <li><a class="type" href="../classes/Texture.FilterMode.html">Texture.FilterMode</a></li>
                             <li><a class="type" href="../classes/Texture.WrapMode.html">Texture.WrapMode</a></li>
@@ -119,50 +122,44 @@
                 
                 module.exports = {
                     load: function (plugin) {
-                        plugin.on(&#x27;asset-db:debugger:open&#x27;, function () {
+                        plugin.on(&#x27;asset-db-debugger:open&#x27;, function () {
                             plugin.openPanel(&#x27;default&#x27;);
                         });
                 
-                        plugin.on ( &#x27;asset-db:debugger:query-url-uuid&#x27;, function () {
+                        plugin.on ( &#x27;asset-db-debugger:query-url-uuid&#x27;, function ( reply ) {
                             var results = [];
-                            for ( var p in Fire.AssetDB._pathToUuid ) {
-                                var url = Fire.AssetDB._url(p);
-                                results.push({ url: url, uuid: Fire.AssetDB._pathToUuid[p] });
+                            for ( var p in Editor.AssetDB._pathToUuid ) {
+                                var url = Editor.AssetDB._url(p);
+                                results.push({ url: url, uuid: Editor.AssetDB._pathToUuid[p] });
                             }
                             results.sort( function ( a, b ) {
                                 return a.url.localeCompare(b.url);
                             });
-                            plugin.sendToPanel( &#x27;default&#x27;, &#x27;asset-db:debugger:url-uuid-results&#x27;, {
-                                results: results
-                            });
+                            reply(results);
                         } );
                 
-                        plugin.on ( &#x27;asset-db:debugger:query-uuid-url&#x27;, function () {
+                        plugin.on ( &#x27;asset-db-debugger:query-uuid-url&#x27;, function ( reply ) {
                             var results = [];
-                            for ( var p in Fire.AssetDB._uuidToPath ) {
-                                var url = Fire.AssetDB._url(Fire.AssetDB._uuidToPath[p]);
+                            for ( var p in Editor.AssetDB._uuidToPath ) {
+                                var url = Editor.AssetDB._url(Editor.AssetDB._uuidToPath[p]);
                                 results.push({ url: url, uuid: p });
                             }
                             results.sort( function ( a, b ) {
                                 return a.url.localeCompare(b.url);
                             });
-                            plugin.sendToPanel( &#x27;default&#x27;, &#x27;asset-db:debugger:uuid-url-results&#x27;, {
-                                results: results
-                            });
+                            reply(results);
                         } );
                 
-                        plugin.on ( &#x27;asset-db:debugger:query-url-subuuids&#x27;, function () {
+                        plugin.on ( &#x27;asset-db-debugger:query-url-subuuids&#x27;, function ( reply ) {
                             var results = [];
-                            for ( var p in Fire.AssetDB._pathToSubUuids ) {
-                                var url = Fire.AssetDB._url(p);
-                                results.push({ url: url, uuids: Fire.AssetDB._pathToSubUuids[p] });
+                            for ( var p in Editor.AssetDB._pathToSubUuids ) {
+                                var url = Editor.AssetDB._url(p);
+                                results.push({ url: url, uuids: Editor.AssetDB._pathToSubUuids[p] });
                             }
                             results.sort( function ( a, b ) {
                                 return a.url.localeCompare(b.url);
                             });
-                            plugin.sendToPanel( &#x27;default&#x27;, &#x27;asset-db:debugger:url-subuuids-results&#x27;, {
-                                results: results
-                            });
+                            reply(results);
                         } );
                     },
                 

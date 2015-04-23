@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.0</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -43,19 +43,19 @@
                             <li><a class="type" href="../classes/_CallbacksHandler.html">_CallbacksHandler</a></li>
                             <li><a class="type" href="../classes/_DeserializeInfo.html">_DeserializeInfo</a></li>
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
+                            <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
                             <li><a class="type" href="../classes/BitmapFont.html">BitmapFont</a></li>
                             <li><a class="type" href="../classes/BitmapText.html">BitmapText</a></li>
-                            <li><a class="type" href="../classes/BitmapText.TextAlign.html">BitmapText.TextAlign</a></li>
-                            <li><a class="type" href="../classes/BitmapText.TextAnchor.html">BitmapText.TextAnchor</a></li>
                             <li><a class="type" href="../classes/CallbacksInvoker.html">CallbacksInvoker</a></li>
                             <li><a class="type" href="../classes/Camera.html">Camera</a></li>
                             <li><a class="type" href="../classes/Color.html">Color</a></li>
                             <li><a class="type" href="../classes/Component.html">Component</a></li>
                             <li><a class="type" href="../classes/ContentStrategyType.html">ContentStrategyType</a></li>
+                            <li><a class="type" href="../classes/Editor.html">Editor</a></li>
                             <li><a class="type" href="../classes/Engine.html">Engine</a></li>
                             <li><a class="type" href="../classes/Entity.html">Entity</a></li>
                             <li><a class="type" href="../classes/EqualToFrame.html">EqualToFrame</a></li>
@@ -64,6 +64,7 @@
                             <li><a class="type" href="../classes/Fire.html">Fire</a></li>
                             <li><a class="type" href="../classes/FixedHeight.html">FixedHeight</a></li>
                             <li><a class="type" href="../classes/FObject.html">FObject</a></li>
+                            <li><a class="type" href="../classes/FontType.html">FontType</a></li>
                             <li><a class="type" href="../classes/HashObject.html">HashObject</a></li>
                             <li><a class="type" href="../classes/Input.html">Input</a></li>
                             <li><a class="type" href="../classes/Intersection.html">Intersection</a></li>
@@ -88,6 +89,8 @@
                             <li><a class="type" href="../classes/SpriteAnimationClip.WrapMode.html">SpriteAnimationClip.WrapMode</a></li>
                             <li><a class="type" href="../classes/SpriteAnimationState.html">SpriteAnimationState</a></li>
                             <li><a class="type" href="../classes/SpriteRenderer.html">SpriteRenderer</a></li>
+                            <li><a class="type" href="../classes/TextAlign.html">TextAlign</a></li>
+                            <li><a class="type" href="../classes/TextAnchor.html">TextAnchor</a></li>
                             <li><a class="type" href="../classes/Texture.html">Texture</a></li>
                             <li><a class="type" href="../classes/Texture.FilterMode.html">Texture.FilterMode</a></li>
                             <li><a class="type" href="../classes/Texture.WrapMode.html">Texture.WrapMode</a></li>
@@ -120,88 +123,6 @@
                 var BitmapText = (function () {
                 
                     /**
-                     * @class BitmapText
-                     */
-                    /**
-                     * @namespace BitmapText
-                     */
-                    /**
-                     * @class TextAlign
-                     * @static
-                     */
-                    var TextAlign = Fire.defineEnum({
-                        /**
-                         * @property left
-                         * @type {number}
-                         */
-                        left: -1,
-                        /**
-                         * @property center
-                         * @type {number}
-                         */
-                        center: -1,
-                        /**
-                         * @property right
-                         * @type {number}
-                         */
-                        right: -1
-                    });
-                
-                    /**
-                     * @class TextAnchor
-                     * @static
-                     */
-                    var TextAnchor = (function (t) {
-                        /**
-                         * @property topLeft
-                         * @type {number}
-                         */
-                        t[t.topLeft = 0] = &#x27;Top Left&#x27;;
-                        /**
-                         * @property topCenter
-                         * @type {number}
-                         */
-                        t[t.topCenter = 1] = &#x27;Top Center&#x27;;
-                        /**
-                         * @property topRight
-                         * @type {number}
-                         */
-                        t[t.topRight = 2] = &#x27;Top Right&#x27;;
-                        /**
-                         * @property midLeft
-                         * @type {number}
-                         */
-                        t[t.midLeft = 3] = &#x27;Middle Left&#x27;;
-                        /**
-                         * @property midCenter
-                         * @type {number}
-                         */
-                        t[t.midCenter = 4] = &#x27;Middle Center&#x27;;
-                        /**
-                         * @property midRight
-                         * @type {number}
-                         */
-                        t[t.midRight = 5] = &#x27;Middle Right&#x27;;
-                        /**
-                         * @property botLeft
-                         * @type {number}
-                         */
-                        t[t.botLeft = 6] = &#x27;Bottom Left&#x27;;
-                        /**
-                         * @property botCenter
-                         * @type {number}
-                         */
-                        t[t.botCenter = 7] = &#x27;Bottom Center&#x27;;
-                        /**
-                         * @property botRight
-                         * @type {number}
-                         */
-                        t[t.botRight = 8] = &#x27;Bottom Right&#x27;;
-                        return t;
-                    })({});
-                
-                
-                    /**
                      * The bitmap font renderer component.
                      * @class BitmapText
                      * @extends Renderer
@@ -210,9 +131,6 @@
                     var BitmapText = Fire.extend(&quot;Fire.BitmapText&quot;, Renderer, function () {
                         RenderContext.initRenderer(this);
                     });
-                
-                    BitmapText.TextAlign = TextAlign;
-                    BitmapText.TextAnchor = TextAnchor;
                 
                     //-- 增加 Bitmap Text 到 组件菜单上
                     Fire.addComponentMenu(BitmapText, &#x27;BitmapText&#x27;);
@@ -262,7 +180,7 @@
                         Fire.MultiText
                     );
                 
-                    BitmapText.prop(&#x27;_anchor&#x27;, BitmapText.TextAnchor.midCenter, Fire.HideInInspector);
+                    BitmapText.prop(&#x27;_anchor&#x27;, Fire.TextAnchor.midCenter, Fire.HideInInspector);
                 
                     /**
                      * The anchor point of the text.
@@ -279,10 +197,10 @@
                                 this._anchor = value;
                             }
                         },
-                        Fire.Enum(BitmapText.TextAnchor)
+                        Fire.Enum(Fire.TextAnchor)
                     );
                 
-                    BitmapText.prop(&#x27;_align&#x27;, BitmapText.TextAlign.left, Fire.HideInInspector);
+                    BitmapText.prop(&#x27;_align&#x27;, Fire.TextAlign.left, Fire.HideInInspector);
                 
                     /**
                      * How lines of text are aligned (left, right, center).
@@ -300,7 +218,7 @@
                                 Engine._renderContext.setAlign(this, value);
                             }
                         },
-                        Fire.Enum(BitmapText.TextAlign)
+                        Fire.Enum(Fire.TextAlign)
                     );
                 
                     BitmapText.prototype.onLoad = function () {
@@ -328,7 +246,7 @@
                     BitmapText.prototype.onPreRender = function () {
                         this.getSelfMatrix(tempMatrix);
                         tempMatrix.prepend(this.transform._worldTransform);
-                        PixiBitmapFontUtil.updateTransform(this, tempMatrix);
+                        RenderContext.updateBitmapTextTransform(this, tempMatrix);
                     };
                 
                     BitmapText.prototype.getSelfMatrix = function (out) {
@@ -340,33 +258,33 @@
                         var anchorOffsetY = 0;
                 
                         switch (this._anchor) {
-                            case BitmapText.TextAnchor.topLeft:
+                            case Fire.TextAnchor.topLeft:
                                 break;
-                            case BitmapText.TextAnchor.topCenter:
+                            case Fire.TextAnchor.topCenter:
                                 anchorOffsetX = w * -0.5;
                                 break;
-                            case BitmapText.TextAnchor.topRight:
+                            case Fire.TextAnchor.topRight:
                                 anchorOffsetX = -w;
                                 break;
-                            case BitmapText.TextAnchor.midLeft:
+                            case Fire.TextAnchor.midLeft:
                                 anchorOffsetY = h * 0.5;
                                 break;
-                            case BitmapText.TextAnchor.midCenter:
+                            case Fire.TextAnchor.midCenter:
                                 anchorOffsetX = w * -0.5;
                                 anchorOffsetY = h * 0.5;
                                 break;
-                            case BitmapText.TextAnchor.midRight:
+                            case Fire.TextAnchor.midRight:
                                 anchorOffsetX = -w;
                                 anchorOffsetY = h * 0.5;
                                 break;
-                            case BitmapText.TextAnchor.botLeft:
+                            case Fire.TextAnchor.botLeft:
                                 anchorOffsetY = h;
                                 break;
-                            case BitmapText.TextAnchor.botCenter:
+                            case Fire.TextAnchor.botCenter:
                                 anchorOffsetX = w * -0.5;
                                 anchorOffsetY = h;
                                 break;
-                            case BitmapText.TextAnchor.botRight:
+                            case Fire.TextAnchor.botRight:
                                 anchorOffsetX = -w;
                                 anchorOffsetY = h;
                                 break;

@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.0</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -43,19 +43,19 @@
                             <li><a class="type" href="../classes/_CallbacksHandler.html">_CallbacksHandler</a></li>
                             <li><a class="type" href="../classes/_DeserializeInfo.html">_DeserializeInfo</a></li>
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
+                            <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
                             <li><a class="type" href="../classes/BitmapFont.html">BitmapFont</a></li>
                             <li><a class="type" href="../classes/BitmapText.html">BitmapText</a></li>
-                            <li><a class="type" href="../classes/BitmapText.TextAlign.html">BitmapText.TextAlign</a></li>
-                            <li><a class="type" href="../classes/BitmapText.TextAnchor.html">BitmapText.TextAnchor</a></li>
                             <li><a class="type" href="../classes/CallbacksInvoker.html">CallbacksInvoker</a></li>
                             <li><a class="type" href="../classes/Camera.html">Camera</a></li>
                             <li><a class="type" href="../classes/Color.html">Color</a></li>
                             <li><a class="type" href="../classes/Component.html">Component</a></li>
                             <li><a class="type" href="../classes/ContentStrategyType.html">ContentStrategyType</a></li>
+                            <li><a class="type" href="../classes/Editor.html">Editor</a></li>
                             <li><a class="type" href="../classes/Engine.html">Engine</a></li>
                             <li><a class="type" href="../classes/Entity.html">Entity</a></li>
                             <li><a class="type" href="../classes/EqualToFrame.html">EqualToFrame</a></li>
@@ -64,6 +64,7 @@
                             <li><a class="type" href="../classes/Fire.html">Fire</a></li>
                             <li><a class="type" href="../classes/FixedHeight.html">FixedHeight</a></li>
                             <li><a class="type" href="../classes/FObject.html">FObject</a></li>
+                            <li><a class="type" href="../classes/FontType.html">FontType</a></li>
                             <li><a class="type" href="../classes/HashObject.html">HashObject</a></li>
                             <li><a class="type" href="../classes/Input.html">Input</a></li>
                             <li><a class="type" href="../classes/Intersection.html">Intersection</a></li>
@@ -88,6 +89,8 @@
                             <li><a class="type" href="../classes/SpriteAnimationClip.WrapMode.html">SpriteAnimationClip.WrapMode</a></li>
                             <li><a class="type" href="../classes/SpriteAnimationState.html">SpriteAnimationState</a></li>
                             <li><a class="type" href="../classes/SpriteRenderer.html">SpriteRenderer</a></li>
+                            <li><a class="type" href="../classes/TextAlign.html">TextAlign</a></li>
+                            <li><a class="type" href="../classes/TextAnchor.html">TextAnchor</a></li>
                             <li><a class="type" href="../classes/Texture.html">Texture</a></li>
                             <li><a class="type" href="../classes/Texture.FilterMode.html">Texture.FilterMode</a></li>
                             <li><a class="type" href="../classes/Texture.WrapMode.html">Texture.WrapMode</a></li>
@@ -134,7 +137,7 @@
                     var compCtor;
                 // @ifdef EDITOR
                     compCtor = function () {
-                        Fire._AssetsWatcher.initComponent(this);
+                        Editor._AssetsWatcher.initComponent(this);
                     };
                 // @endif
                 
@@ -166,12 +169,12 @@
                         },
                         function (value) {
                             if (this._cacheUuid !== value) {
-                                if (value &amp;&amp; Fire.isUuid(value)) {
-                                    var classId = Fire.compressUuid(value);
+                                if (value &amp;&amp; Editor.isUuid(value)) {
+                                    var classId = Editor.compressUuid(value);
                                     var newComp = Fire.JS._getClassById(classId);
                                     if (newComp) {
                                         Fire.warn(&#x27;Sorry, replacing component script is not yet implemented.&#x27;);
-                                        //Fire.sendToWindows(&#x27;reload:window-scripts&#x27;, Fire._Sandbox.compiled);
+                                        //Editor.sendToWindows(&#x27;reload:window-scripts&#x27;, Editor._Sandbox.compiled);
                                     }
                                     else {
                                         Fire.error(&#x27;Can not find a component in the script which uuid is &quot;%s&quot;.&#x27;, value);
@@ -266,9 +269,9 @@
                 
                     /**
                      * Called before all scripts&#x27; update if the Component is enabled
-                     * @event onStart
+                     * @event start
                      */
-                    Component.prototype.onStart = null;
+                    Component.prototype.start = null;
                 
                     /**
                      * Called when this component becomes enabled and its entity becomes active
@@ -352,7 +355,7 @@
                     var callOnEnableInTryCatch = eval(execInTryCatchTmpl.replace(/_FUNC_/g, &#x27;onEnable&#x27;));
                     var callOnDisableInTryCatch = eval(execInTryCatchTmpl.replace(/_FUNC_/g, &#x27;onDisable&#x27;));
                     var callOnLoadInTryCatch = eval(execInTryCatchTmpl.replace(/_FUNC_/g, &#x27;onLoad&#x27;));
-                    var callOnStartInTryCatch = eval(execInTryCatchTmpl.replace(/_FUNC_/g, &#x27;onStart&#x27;));
+                    var callOnStartInTryCatch = eval(execInTryCatchTmpl.replace(/_FUNC_/g, &#x27;start&#x27;));
                     var callOnDestroyInTryCatch = eval(execInTryCatchTmpl.replace(/_FUNC_/g, &#x27;onDestroy&#x27;));
                     // jshint evil: false
                 // @endif
@@ -416,7 +419,7 @@
                             if (this.onLoad) {
                                 callOnLoadInTryCatch(this);
                             }
-                            Fire._AssetsWatcher.start(this);
+                            Editor._AssetsWatcher.start(this);
                             //if (this.onHierarchyChanged) {
                             //    this.entity.transform._addListener(this);
                             //}
@@ -452,12 +455,12 @@
                                 comp = entity._components[c];
                                 if ( !(comp._objFlags &amp; IsOnStartCalled) ) {
                                     comp._objFlags |= IsOnStartCalled;
-                                    if (comp.onStart) {
+                                    if (comp.start) {
                                         // @ifdef EDITOR
                                         callOnStartInTryCatch(comp);
                                         // @endif
                                         // @ifndef EDITOR
-                                        comp.onStart();
+                                        comp.start();
                                         // @endif
                                     }
                                 }
@@ -469,7 +472,7 @@
                                 comp = entity._components[c];
                                 if ( !(comp._objFlags &amp; IsOnStartCalled) &amp;&amp; Fire.attr(comp, &#x27;executeInEditMode&#x27;)) {
                                     comp._objFlags |= IsOnStartCalled;
-                                    if (comp.onStart) {
+                                    if (comp.start) {
                                         callOnStartInTryCatch(comp);
                                     }
                                 }
@@ -478,7 +481,7 @@
                         // @endif
                         // activate its children recursively
                         for (var i = 0, children = entity._children, len = children.length; i &lt; len; ++i) {
-                            var child = [i];
+                            var child = children[i];
                             if (child._active) {
                                 Component._invokeStarts(child);
                             }
@@ -490,7 +493,7 @@
                         _callOnEnable(this, false);
                         // onDestroy
                 // @ifdef EDITOR
-                        Fire._AssetsWatcher.stop(this);
+                        Editor._AssetsWatcher.stop(this);
                         if (Fire.Engine.isPlaying || Fire.attr(this, &#x27;executeInEditMode&#x27;)) {
                             if (this.onDestroy) {
                                 callOnDestroyInTryCatch(this);

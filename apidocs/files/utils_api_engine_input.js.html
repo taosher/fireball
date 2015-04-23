@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.0</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -43,19 +43,19 @@
                             <li><a class="type" href="../classes/_CallbacksHandler.html">_CallbacksHandler</a></li>
                             <li><a class="type" href="../classes/_DeserializeInfo.html">_DeserializeInfo</a></li>
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
+                            <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
                             <li><a class="type" href="../classes/BitmapFont.html">BitmapFont</a></li>
                             <li><a class="type" href="../classes/BitmapText.html">BitmapText</a></li>
-                            <li><a class="type" href="../classes/BitmapText.TextAlign.html">BitmapText.TextAlign</a></li>
-                            <li><a class="type" href="../classes/BitmapText.TextAnchor.html">BitmapText.TextAnchor</a></li>
                             <li><a class="type" href="../classes/CallbacksInvoker.html">CallbacksInvoker</a></li>
                             <li><a class="type" href="../classes/Camera.html">Camera</a></li>
                             <li><a class="type" href="../classes/Color.html">Color</a></li>
                             <li><a class="type" href="../classes/Component.html">Component</a></li>
                             <li><a class="type" href="../classes/ContentStrategyType.html">ContentStrategyType</a></li>
+                            <li><a class="type" href="../classes/Editor.html">Editor</a></li>
                             <li><a class="type" href="../classes/Engine.html">Engine</a></li>
                             <li><a class="type" href="../classes/Entity.html">Entity</a></li>
                             <li><a class="type" href="../classes/EqualToFrame.html">EqualToFrame</a></li>
@@ -64,6 +64,7 @@
                             <li><a class="type" href="../classes/Fire.html">Fire</a></li>
                             <li><a class="type" href="../classes/FixedHeight.html">FixedHeight</a></li>
                             <li><a class="type" href="../classes/FObject.html">FObject</a></li>
+                            <li><a class="type" href="../classes/FontType.html">FontType</a></li>
                             <li><a class="type" href="../classes/HashObject.html">HashObject</a></li>
                             <li><a class="type" href="../classes/Input.html">Input</a></li>
                             <li><a class="type" href="../classes/Intersection.html">Intersection</a></li>
@@ -88,6 +89,8 @@
                             <li><a class="type" href="../classes/SpriteAnimationClip.WrapMode.html">SpriteAnimationClip.WrapMode</a></li>
                             <li><a class="type" href="../classes/SpriteAnimationState.html">SpriteAnimationState</a></li>
                             <li><a class="type" href="../classes/SpriteRenderer.html">SpriteRenderer</a></li>
+                            <li><a class="type" href="../classes/TextAlign.html">TextAlign</a></li>
+                            <li><a class="type" href="../classes/TextAnchor.html">TextAnchor</a></li>
                             <li><a class="type" href="../classes/Texture.html">Texture</a></li>
                             <li><a class="type" href="../classes/Texture.FilterMode.html">Texture.FilterMode</a></li>
                             <li><a class="type" href="../classes/Texture.WrapMode.html">Texture.WrapMode</a></li>
@@ -125,7 +128,8 @@
                      * @beta
                      */
                     var Input = {
-                        _eventListeners: new EventListeners()
+                        _eventListeners: new EventListeners(),
+                        _lastTarget: null
                     };
                 
                     /**
@@ -183,23 +187,46 @@
                 
                     Input._reset = function () {
                         this._eventListeners = new EventListeners();
+                        this._lastTarget = null;
                     };
                 
                     Input._dispatchMouseEvent = function (event, inputContext) {
                         var camera = inputContext.renderContext.camera || Engine._scene.camera;
                         var worldMousePos = camera.screenToWorld(new Vec2(event.screenX, event.screenY));
                         var target = Engine._interactionContext.pick(worldMousePos);
-                        if (target) {
-                            target.dispatchEvent(event);
+                
+                        // dispatch global mouse event
+                        event.target = target;
+                        this._eventListeners.invoke(event);
+                
+                        if (this._lastTarget &amp;&amp; this._lastTarget !== target) {
+                            // mouse leave event
+                            var leaveEvent = event.clone();
+                            leaveEvent.type = &#x27;mouseleave&#x27;;
+                            leaveEvent.bubbles = EventRegister.inputEvents.mouseleave.bubbles;
+                            this._lastTarget.dispatchEvent(leaveEvent);
                         }
+                        if (target) {
+                            // dispatch mouse event
+                            target.dispatchEvent(event);
+                            // mouse enter event
+                            if (this._lastTarget !== target) {
+                                var enterEvent = event.clone();
+                                enterEvent.type = &#x27;mouseenter&#x27;;
+                                enterEvent.bubbles = EventRegister.inputEvents.mouseenter.bubbles;
+                                target.dispatchEvent(enterEvent);
+                            }
+                        }
+                        this._lastTarget = target;
                     };
                 
                     Input._dispatchEvent = function (event, inputContext) {
-                        // dispatch global event
-                        this._eventListeners.invoke(event);
-                        // dispatch mouse event through hierarchy
                         if (event instanceof Fire.MouseEvent) {
                             this._dispatchMouseEvent(event, inputContext);
+                        }
+                        else {
+                            // dispatch global event
+                            this._eventListeners.invoke(event);
                         }
                     };
                 
