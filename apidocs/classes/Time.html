@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.3.0</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -45,6 +45,7 @@
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
                             <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
+                            <li><a class="type" href="../classes/AssetBundleBase.html">AssetBundleBase</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
@@ -77,8 +78,11 @@
                             <li><a class="type" href="../classes/MouseEvent.html">MouseEvent</a></li>
                             <li><a class="type" href="../classes/NoScale.html">NoScale</a></li>
                             <li><a class="type" href="../classes/Path.html">Path</a></li>
+                            <li><a class="type" href="../classes/Playable.html">Playable</a></li>
                             <li><a class="type" href="../classes/Rect.html">Rect</a></li>
                             <li><a class="type" href="../classes/Renderer.html">Renderer</a></li>
+                            <li><a class="type" href="../classes/Resources.html">Resources</a></li>
+                            <li><a class="type" href="../classes/ResourcesBundle.html">ResourcesBundle</a></li>
                             <li><a class="type" href="../classes/Screen.html">Screen</a></li>
                             <li><a class="type" href="../classes/Screen.ContainerStrategy.html">Screen.ContainerStrategy</a></li>
                             <li><a class="type" href="../classes/Screen.ContentStrategy.html">Screen.ContentStrategy</a></li>
@@ -382,7 +386,13 @@
                                     <div class="args">
                                         <span class="paren">(</span><ul class="args-list inline commas">
                                             <li class="arg">
+                                                    <code>timestamp</code>
+                                            </li>
+                                            <li class="arg">
                                                     <code class="optional">[paused=false]</code>
+                                            </li>
+                                            <li class="arg">
+                                                    <code class="optional">[maxDeltaTime=Time.maxDeltaTime]</code>
                                             </li>
                                         </ul><span class="paren">)</span>
                                     </div>
@@ -418,6 +428,16 @@
                             
                                             <ul class="params-list">
                                                 <li class="param">
+                                                        <code class="param-name">timestamp</code>
+                                                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                            
+                            
+                                                    <div class="param-description">
+                                                         
+                                                    </div>
+                            
+                                                </li>
+                                                <li class="param">
                                                         <code class="param-name optional">[paused=false]</code>
                                                         <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Boolean" class="crosslink external" target="_blank">Boolean</a></span>
                                                         <span class="flag optional" title="This parameter is optional.">optional</span>
@@ -426,6 +446,17 @@
                                                     <div class="param-description">
                                                         <p>if true, only realTime will be updated</p>
                             
+                                                    </div>
+                            
+                                                </li>
+                                                <li class="param">
+                                                        <code class="param-name optional">[maxDeltaTime=Time.maxDeltaTime]</code>
+                                                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Number" class="crosslink external" target="_blank">Number</a></span>
+                                                        <span class="flag optional" title="This parameter is optional.">optional</span>
+                            
+                            
+                                                    <div class="param-description">
+                                                         
                                                     </div>
                             
                                                 </li>

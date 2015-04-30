@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.3.0</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -45,6 +45,7 @@
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
                             <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
+                            <li><a class="type" href="../classes/AssetBundleBase.html">AssetBundleBase</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
@@ -77,8 +78,11 @@
                             <li><a class="type" href="../classes/MouseEvent.html">MouseEvent</a></li>
                             <li><a class="type" href="../classes/NoScale.html">NoScale</a></li>
                             <li><a class="type" href="../classes/Path.html">Path</a></li>
+                            <li><a class="type" href="../classes/Playable.html">Playable</a></li>
                             <li><a class="type" href="../classes/Rect.html">Rect</a></li>
                             <li><a class="type" href="../classes/Renderer.html">Renderer</a></li>
+                            <li><a class="type" href="../classes/Resources.html">Resources</a></li>
+                            <li><a class="type" href="../classes/ResourcesBundle.html">ResourcesBundle</a></li>
                             <li><a class="type" href="../classes/Screen.html">Screen</a></li>
                             <li><a class="type" href="../classes/Screen.ContainerStrategy.html">Screen.ContainerStrategy</a></li>
                             <li><a class="type" href="../classes/Screen.ContentStrategy.html">Screen.ContentStrategy</a></li>
@@ -190,42 +194,15 @@
                 });
                 
                 /**
-                 * The canvas&#x27;s parent node in dom.
-                 * @property _container
-                 * @type {HTMLElement}
-                 * @private
-                 */
-                Object.defineProperty(Screen, &#x27;_container&#x27;, {
-                    get: function () {
-                        var canvas = Fire.Engine._renderContext.canvas;
-                        return canvas.parentNode;
-                    }
-                });
-                
-                /**
-                 * The container&#x27;s parent node in dom.
-                 * @property _frame
-                 * @type {HTMLElement}
-                 * @private
-                 */
-                Object.defineProperty(Screen, &#x27;_frame&#x27;, {
-                    get: function () {
-                        var container = this._container;
-                        return (container.parentNode === document.body) ? document.documentElement : container.parentNode;
-                    }
-                });
-                
-                /**
                  * Size of parent node that contains container and _canvas
                  * @property _frameSize
                  * @type {Vec2}
                  * @private
                  */
-                Object.defineProperty(Screen, &#x27;_frameSize&#x27;, {
-                    get: function () {
-                        var frame = this._frame;
-                        return Fire.v2(BrowserGetter.availWidth(frame), BrowserGetter.availHeight(frame));
-                    }
+                JS.get(Screen, &#x27;_frameSize&#x27;, function () {
+                    var container = Engine._renderContext.container;
+                    var frame = (container.parentNode === document.body) ? document.documentElement : container.parentNode;
+                    return Fire.v2(BrowserGetter.availWidth(frame), BrowserGetter.availHeight(frame));
                 });
                 
                 //Object.defineProperty(Screen, &#x27;resolutionPolicy&#x27;, {

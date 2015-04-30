@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.3.0</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -45,6 +45,7 @@
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
                             <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
+                            <li><a class="type" href="../classes/AssetBundleBase.html">AssetBundleBase</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
@@ -77,8 +78,11 @@
                             <li><a class="type" href="../classes/MouseEvent.html">MouseEvent</a></li>
                             <li><a class="type" href="../classes/NoScale.html">NoScale</a></li>
                             <li><a class="type" href="../classes/Path.html">Path</a></li>
+                            <li><a class="type" href="../classes/Playable.html">Playable</a></li>
                             <li><a class="type" href="../classes/Rect.html">Rect</a></li>
                             <li><a class="type" href="../classes/Renderer.html">Renderer</a></li>
+                            <li><a class="type" href="../classes/Resources.html">Resources</a></li>
+                            <li><a class="type" href="../classes/ResourcesBundle.html">ResourcesBundle</a></li>
                             <li><a class="type" href="../classes/Screen.html">Screen</a></li>
                             <li><a class="type" href="../classes/Screen.ContainerStrategy.html">Screen.ContainerStrategy</a></li>
                             <li><a class="type" href="../classes/Screen.ContentStrategy.html">Screen.ContentStrategy</a></li>
@@ -214,8 +218,61 @@
                     //    this.height = this.image.height;
                     //};
                 
+                    /**
+                     * Returns pixel color at coordinates (x, y).
+                     *
+                     * If the pixel coordinates are out of bounds (larger than width/height or small than 0),
+                     * they will be clamped or repeated based on the texture&#x27;s wrap mode.
+                     *
+                     * @method getPixel
+                     * @param {number} x
+                     * @param {number} y
+                     * @return {Fire.Color}
+                     */
+                    Texture.prototype.getPixel = function (x, y) {
+                        if (!canvasCtxToGetPixel) {
+                            var canvas = document.createElement(&#x27;canvas&#x27;);
+                            canvas.width = 1;
+                            canvas.height = 1;
+                            canvasCtxToGetPixel = canvas.getContext(&#x27;2d&#x27;);
+                        }
+                        if (this.wrapMode === Texture.WrapMode.Clamp) {
+                            x = Math.clamp(x, 0, this.image.width);
+                            y = Math.clamp(y, 0, this.image.height);
+                        }
+                        else if (this.wrapMode === Texture.WrapMode.Repeat) {
+                            x = x % this.image.width;
+                            if (x &lt; 0) {
+                                x += this.image.width;
+                            }
+                            y = y % this.image.width;
+                            if (y &lt; 0) {
+                                y += this.image.width;
+                            }
+                        }
+                        canvasCtxToGetPixel.clearRect(0, 0, 1, 1);
+                        canvasCtxToGetPixel.drawImage(this.image, x, y, 1, 1, 0, 0, 1, 1);
+                
+                        var imgBytes = null;
+                        try {
+                            imgBytes = canvasCtxToGetPixel.getImageData(0, 0, 1, 1).data;
+                        }
+                        catch (e) {
+                            Fire.error(&quot;An error has occurred. This is most likely due to security restrictions on reading canvas pixel data with local or cross-domain images.&quot;);
+                            return Fire.Color.transparent;
+                        }
+                        var result = new Fire.Color();
+                        result.r = imgBytes[0] / 255;
+                        result.g = imgBytes[1] / 255;
+                        result.b = imgBytes[2] / 255;
+                        result.a = imgBytes[3] / 255;
+                        return result;
+                    };
+                
                     return Texture;
                 })();
+                
+                var canvasCtxToGetPixel = null;
                 
                     </pre>
                 </div>

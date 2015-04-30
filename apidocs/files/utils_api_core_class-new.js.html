@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.3.0</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -45,6 +45,7 @@
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
                             <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
+                            <li><a class="type" href="../classes/AssetBundleBase.html">AssetBundleBase</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
@@ -77,8 +78,11 @@
                             <li><a class="type" href="../classes/MouseEvent.html">MouseEvent</a></li>
                             <li><a class="type" href="../classes/NoScale.html">NoScale</a></li>
                             <li><a class="type" href="../classes/Path.html">Path</a></li>
+                            <li><a class="type" href="../classes/Playable.html">Playable</a></li>
                             <li><a class="type" href="../classes/Rect.html">Rect</a></li>
                             <li><a class="type" href="../classes/Renderer.html">Renderer</a></li>
+                            <li><a class="type" href="../classes/Resources.html">Resources</a></li>
+                            <li><a class="type" href="../classes/ResourcesBundle.html">ResourcesBundle</a></li>
                             <li><a class="type" href="../classes/Screen.html">Screen</a></li>
                             <li><a class="type" href="../classes/Screen.ContainerStrategy.html">Screen.ContainerStrategy</a></li>
                             <li><a class="type" href="../classes/Screen.ContentStrategy.html">Screen.ContentStrategy</a></li>
@@ -120,7 +124,7 @@
                  * @class Fire
                  */
                 /**
-                 * !#en Defines a FireClass using the given literal prototype object, please see [Class](/en/scripting/class/) for details.
+                 * !#en Defines a FireClass using the given specification, please see [Class](/en/scripting/class/) for details.
                  * !#zh 定义一个 FireClass，传入参数必须是一个包含类型参数的字面量对象，具体用法请查阅[类型定义](/zh/scripting/class/)。
                  *
                  * @method Class
@@ -182,12 +186,12 @@
                     }
                 
                     var name = options.name;
-                    var base = options.extends;
+                    var base = options.extends || FObject;
                     var ctor = (options.hasOwnProperty(&#x27;constructor&#x27;) &amp;&amp; options.constructor) || undefined;
                 
                     // create constructor
                     var cls;
-                    if (base) {
+                    //if (base) {
                         if (name) {
                             cls = Fire.extend(name, base, ctor);
                         }
@@ -195,16 +199,16 @@
                             cls = Fire.extend(base, ctor);
                             name = Fire.JS.getClassName(cls);
                         }
-                    }
-                    else {
-                        if (name) {
-                            cls = Fire.define(name, ctor);
-                        }
-                        else {
-                            cls = Fire.define(ctor);
-                            name = Fire.JS.getClassName(cls);
-                        }
-                    }
+                    //}
+                    //else {
+                    //    if (name) {
+                    //        cls = Fire.define(name, ctor);
+                    //    }
+                    //    else {
+                    //        cls = Fire.define(ctor);
+                    //        name = Fire.JS.getClassName(cls);
+                    //    }
+                    //}
                 
                     // define properties
                     var properties = options.properties;

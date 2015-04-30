@@ -1,13 +1,13 @@
 {
   "name": "fire-scene",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Fireball builtin scene view",
   "author": "Firebox Technology",
   "fireball": {
     "main": "editor/main.js",
     "menus": [
       {
-        "path": "Fireball/Panels/Scene",
+        "path": "View/Panels/Scene",
         "message": "fire-scene:open"
       }
     ],
@@ -20,7 +20,7 @@
         "width": "auto",
         "height": "auto",
         "messages": [
-          "scene:dirty",
+          "scene:repaint",
           "component:enabled",
           "component:disabled",
           "selection:entity:selected",

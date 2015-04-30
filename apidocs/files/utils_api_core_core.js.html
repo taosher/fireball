@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.3.0</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -45,6 +45,7 @@
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
                             <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
+                            <li><a class="type" href="../classes/AssetBundleBase.html">AssetBundleBase</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
@@ -77,8 +78,11 @@
                             <li><a class="type" href="../classes/MouseEvent.html">MouseEvent</a></li>
                             <li><a class="type" href="../classes/NoScale.html">NoScale</a></li>
                             <li><a class="type" href="../classes/Path.html">Path</a></li>
+                            <li><a class="type" href="../classes/Playable.html">Playable</a></li>
                             <li><a class="type" href="../classes/Rect.html">Rect</a></li>
                             <li><a class="type" href="../classes/Renderer.html">Renderer</a></li>
+                            <li><a class="type" href="../classes/Resources.html">Resources</a></li>
+                            <li><a class="type" href="../classes/ResourcesBundle.html">ResourcesBundle</a></li>
                             <li><a class="type" href="../classes/Screen.html">Screen</a></li>
                             <li><a class="type" href="../classes/Screen.ContainerStrategy.html">Screen.ContainerStrategy</a></li>
                             <li><a class="type" href="../classes/Screen.ContentStrategy.html">Screen.ContentStrategy</a></li>
@@ -142,7 +146,7 @@
                  * @class JS
                  * @static
                  */
-                var JS = Fire.JS = {
+                var JS = {
                 
                     /**
                      * copy all properties not defined in obj from arguments[1...n]
@@ -230,6 +234,8 @@
                         }
                     }
                 };
+                
+                Fire.JS = JS;
                 
                 /**
                  * Get class name of the object, if object is just a {} (and which class named &#x27;Object&#x27;), it will return null.
@@ -446,11 +452,13 @@
                  * @param {string} prop
                  * @param {function} getter
                  * @param {function} setter
+                 * @param {boolean} [enumerable=false]
                  */
-                JS.getset = function (obj, prop, getter, setter) {
+                JS.getset = function (obj, prop, getter, setter, enumerable) {
                     Object.defineProperty(obj, prop, {
                         get: getter,
-                        set: setter
+                        set: setter,
+                        enumerable: !!enumerable
                     });
                 };
                 
@@ -460,10 +468,12 @@
                  * @param {any} obj
                  * @param {string} prop
                  * @param {function} getter
+                 * @param {boolean} [enumerable=false]
                  */
-                JS.get = function (obj, prop, getter) {
+                JS.get = function (obj, prop, getter, enumerable) {
                     Object.defineProperty(obj, prop, {
-                        get: getter
+                        get: getter,
+                        enumerable: !!enumerable
                     });
                 };
                 
@@ -473,10 +483,12 @@
                  * @param {any} obj
                  * @param {string} prop
                  * @param {function} setter
+                 * @param {boolean} [enumerable=false]
                  */
-                JS.set = function (obj, prop, setter) {
+                JS.set = function (obj, prop, setter, enumerable) {
                     Object.defineProperty(obj, prop, {
-                        set: setter
+                        set: setter,
+                        enumerable: !!enumerable
                     });
                 };
                 

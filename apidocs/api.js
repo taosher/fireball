@@ -2,6 +2,7 @@ YUI.add("yuidoc-meta", function(Y) {
    Y.YUIDoc = { meta: {
     "classes": [
         "Asset",
+        "AssetBundleBase",
         "AssetLibrary",
         "AudioClip",
         "AudioSource",
@@ -34,8 +35,11 @@ YUI.add("yuidoc-meta", function(Y) {
         "MouseEvent",
         "NoScale",
         "Path",
+        "Playable",
         "Rect",
         "Renderer",
+        "Resources",
+        "ResourcesBundle",
         "Screen",
         "Screen.ContainerStrategy",
         "Screen.ContentStrategy",

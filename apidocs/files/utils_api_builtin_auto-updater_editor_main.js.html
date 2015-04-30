@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.3.0</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -45,6 +45,7 @@
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
                             <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
+                            <li><a class="type" href="../classes/AssetBundleBase.html">AssetBundleBase</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
@@ -77,8 +78,11 @@
                             <li><a class="type" href="../classes/MouseEvent.html">MouseEvent</a></li>
                             <li><a class="type" href="../classes/NoScale.html">NoScale</a></li>
                             <li><a class="type" href="../classes/Path.html">Path</a></li>
+                            <li><a class="type" href="../classes/Playable.html">Playable</a></li>
                             <li><a class="type" href="../classes/Rect.html">Rect</a></li>
                             <li><a class="type" href="../classes/Renderer.html">Renderer</a></li>
+                            <li><a class="type" href="../classes/Resources.html">Resources</a></li>
+                            <li><a class="type" href="../classes/ResourcesBundle.html">ResourcesBundle</a></li>
                             <li><a class="type" href="../classes/Screen.html">Screen</a></li>
                             <li><a class="type" href="../classes/Screen.ContainerStrategy.html">Screen.ContainerStrategy</a></li>
                             <li><a class="type" href="../classes/Screen.ContentStrategy.html">Screen.ContentStrategy</a></li>
@@ -121,104 +125,177 @@
                  */
                 var Url = require(&#x27;fire-url&#x27;);
                 var App = require(&#x27;app&#x27;);
-                var AutoUpdater = require(&#x27;auto-updater&#x27;);
+                console.log(__dirname);
+                var Updater = require(&#x27;./updater&#x27;);
+                //var AutoUpdater = require(&#x27;auto-updater&#x27;);
                 
                 var status = &#x27;normal&#x27;;
                 var ignoreDialog = false;
+                var downloadUrl = &#x27;&#x27;;
+                var filename = &#x27;&#x27;;
                 
                 module.exports = {
                     load: function (plugin) {
-                        if ( Editor.isDev ) {
-                            plugin.on(&#x27;auto-updater:open&#x27;, function () {
-                                Fire.warn(&#x27;auto-updater only works in release version.&#x27;);
-                            });
-                            return;
-                        }
+                        //if ( Editor.isDev ) {
+                        //    plugin.on(&#x27;auto-updater:open&#x27;, function () {
+                        //        Fire.warn(&#x27;auto-updater only works in release version.&#x27;);
+                        //    });
+                        //    return;
+                        //}
                 
-                        AutoUpdater.on(&#x27;checking-for-update&#x27;, function() {
-                            status = &#x27;checking&#x27;;
-                            Fire.log(&quot;Checking for update, current version: &quot; + App.getVersion());
-                            plugin.sendToPanel(&#x27;default&#x27;, &#x27;auto-updater:status-changed&#x27;, {
-                                status: status
-                            });
-                        });
+                        //AutoUpdater.on(&#x27;checking-for-update&#x27;, function() {
+                        //    status = &#x27;checking&#x27;;
+                        //    Fire.log(&quot;Checking for update, current version: &quot; + App.getVersion());
+                        //    plugin.sendToPanel(&#x27;default&#x27;, &#x27;auto-updater:status-changed&#x27;, {
+                        //        status: status
+                        //    });
+                        //});
                 
-                        AutoUpdater.on(&#x27;update-available&#x27;, function(notes) {
-                            status = &#x27;downloading&#x27;;
-                            Fire.log(&#x27;Downloading...&#x27;);
-                            plugin.sendToPanel(&#x27;default&#x27;, &#x27;auto-updater:status-changed&#x27;, {
-                                status: status
-                            });
-                        });
+                        //AutoUpdater.on(&#x27;update-available&#x27;, function(notes) {
+                        //    status = &#x27;downloading&#x27;;
+                        //    Fire.log(&#x27;Downloading...&#x27;);
+                        //    plugin.sendToPanel(&#x27;default&#x27;, &#x27;auto-updater:status-changed&#x27;, {
+                        //        status: status
+                        //    });
+                        //});
                 
-                        AutoUpdater.on(&#x27;update-not-available&#x27;, function() {
-                            status = &#x27;not-available&#x27;;
-                            plugin.sendToPanel(&#x27;default&#x27;, &#x27;auto-updater:status-changed&#x27;, {
-                                status: status
-                            });
-                            Fire.info(&#x27;You are in latest version.&#x27;);
-                        });
+                        //AutoUpdater.on(&#x27;update-not-available&#x27;, function() {
+                        //    status = &#x27;not-available&#x27;;
+                        //    plugin.sendToPanel(&#x27;default&#x27;, &#x27;auto-updater:status-changed&#x27;, {
+                        //        status: status
+                        //    });
+                        //    Fire.info(&#x27;You are in latest version.&#x27;);
+                        //});
                 
-                        AutoUpdater.on(&#x27;update-downloaded&#x27;, function() {
-                            status = &#x27;downloaded&#x27;;
-                            Fire.info(&#x27;Download success, ready to install&#x27;);
-                
-                            var dialog = require(&#x27;dialog&#x27;);
-                            var result = dialog.showMessageBox({
-                                type: &quot;warning&quot;,
-                                buttons: [&quot;Quite and install now&quot;,&quot;later&quot;],
-                                title: &quot;Install Update&quot;,
-                                message: &quot;install update now?&quot;,
-                                detail: &quot;If you choose \&quot;later\&quot;, Fireball will update itself after you quit the app.&quot;
-                            });
-                
-                            if (result === 0) {
-                                AutoUpdater.quitAndInstall();
-                            }
-                            else if (result === 1) {
-                                //TODO: 发IPC给MainWindow,让MainWindow在关闭的时候调用AutoUpdater.quitAndInstall();
-                            }
-                            ignoreDialog = true;
-                
-                            plugin.sendToPanel(&#x27;default&#x27;, &#x27;auto-updater:status-changed&#x27;, {
-                                status: status,
-                                ignoreDialog: ignoreDialog
-                            });
-                        });
-                
-                        AutoUpdater.on(&#x27;error&#x27;, function () {
-                            Fire.error(arguments[1]);
-                            status = &quot;error&quot;;
-                            plugin.openPanel(&#x27;default&#x27;, {
-                                status: status
-                            });
-                            plugin.sendToPanel(&#x27;default&#x27;, &#x27;auto-updater:status-changed&#x27;, {
-                                status: status,
-                            });
-                        });
-                        AutoUpdater.setFeedUrl(&#x27;http://fireball-x.com/api/checkupdate?version=v&#x27; + App.getVersion());
+                        //AutoUpdater.on(&#x27;update-downloaded&#x27;, function() {
+                        //    status = &#x27;downloaded&#x27;;
+                        //    Fire.info(&#x27;Download success, ready to install&#x27;);
+                        //
+                        //    var dialog = require(&#x27;dialog&#x27;);
+                        //    var result = dialog.showMessageBox({
+                        //        type: &quot;warning&quot;,
+                        //        buttons: [&quot;Quite and install now&quot;,&quot;later&quot;],
+                        //        title: &quot;Install Update&quot;,
+                        //        message: &quot;install update now?&quot;,
+                        //        detail: &quot;If you choose \&quot;later\&quot;, Fireball will update itself after you quit the app.&quot;
+                        //    });
+                        //
+                        //    if (result === 0) {
+                        //        AutoUpdater.quitAndInstall();
+                        //    }
+                        //    else if (result === 1) {
+                        //        //TODO: 发IPC给MainWindow,让MainWindow在关闭的时候调用AutoUpdater.quitAndInstall();
+                        //    }
+                        //    ignoreDialog = true;
+                        //
+                        //    plugin.sendToPanel(&#x27;default&#x27;, &#x27;auto-updater:status-changed&#x27;, {
+                        //        status: status,
+                        //        ignoreDialog: ignoreDialog
+                        //    });
+                        //});
+                        //
+                        //AutoUpdater.on(&#x27;error&#x27;, function () {
+                        //    Fire.error(arguments[1]);
+                        //    status = &quot;error&quot;;
+                        //    plugin.openPanel(&#x27;default&#x27;, {
+                        //        status: status
+                        //    });
+                        //    plugin.sendToPanel(&#x27;default&#x27;, &#x27;auto-updater:status-changed&#x27;, {
+                        //        status: status,
+                        //    });
+                        //});
+                        //AutoUpdater.setFeedUrl(&#x27;http://fireball-x.com/api/checkupdate?version=v&#x27; + App.getVersion());
                 
                         plugin.on(&#x27;auto-updater:open&#x27;, function () {
                             ignoreDialog = false;
                             plugin.openPanel(&#x27;default&#x27;, {
-                                status: status,
-                                ignoreDialog: ignoreDialog
+                                status: &#x27;normal&#x27;
                             });
+                
                         });
                 
-                        plugin.on(&#x27;auto-updater:start&#x27;, function () {
-                            AutoUpdater.checkForUpdates();
+                        plugin.on(&#x27;auto-updater:opened&#x27;, function(opts) {
+                            switch(opts.status) {
+                                case &#x27;normal&#x27;:
+                                    plugin.sendToPanel(&#x27;default&#x27;, &#x27;auto-updater:status-changed&#x27;, {
+                                        status: &#x27;checking&#x27;
+                                    });
+                                    Updater.checkUpdateFireball(function(result) {
+                                        if (result.error) {
+                                            plugin.sendToPanel(&#x27;default&#x27;, &#x27;auto-updater:status-changed&#x27;, {
+                                                status: &#x27;not-available&#x27;
+                                            });
+                                        } else if (result.downloadUrl &amp;&amp; result.filename) {
+                                            downloadUrl = result.downloadUrl;
+                                            filename = result.filename;
+                                            console.log(&#x27;found new version&#x27;);
+                                            status = &#x27;confirm-download&#x27;;
+                                            plugin.sendToPanel(&#x27;default&#x27;, &#x27;auto-updater:status-changed&#x27;, {
+                                                status: &#x27;confirm-download&#x27;,
+                                                filename: result.filename,
+                                                newVersion: /-(v\d+\.\d+\.\d+)-/ig.exec(result.filename)[1]
+                                            });
+                                        } else {
+                                            plugin.sendToPanel(&#x27;default&#x27;, &#x27;auto-updater:status-changed&#x27;, {
+                                                status: &#x27;not-available&#x27;
+                                            });
+                                        }
+                                    });
+                                    break;
+                                case &#x27;download-complete&#x27;:
+                                    plugin.sendToPanel(&#x27;default&#x27;, &#x27;auto-updater:status-changed&#x27;, {
+                                        status: &#x27;confirm-replace&#x27;
+                                    });
+                                    break;
+                            }
                         });
                 
+                        plugin.on(&#x27;auto-updater:on-confirm&#x27;, function (opts) {
+                            console.log(&#x27;confirm status: &#x27; + opts.status);
+                            switch(opts.status) {
+                                case &#x27;confirm-download&#x27;:
+                                    console.log(&quot;state change to downloading&quot;);
+                                    plugin.sendToPanel(&#x27;default&#x27;, &#x27;auto-updater:status-changed&#x27;, {
+                                        status: &#x27;downloading&#x27;
+                                    });
+                                    Updater.downloadFireball(downloadUrl, filename, function(result) {
+                                        if (result.error) {
+                                            Fire.warn(&#x27;Download new Fireball version failed, please check your connection and retry.&#x27;);
+                                        } else {
+                                            plugin.openPanel(&#x27;default&#x27;, {
+                                                status: &#x27;download-complete&#x27;
+                                            });
+                                        }
+                                    });
+                                    setTimeout(function() {
+                                        console.log(&#x27;closing auto-updater&#x27;);
+                                        Editor.Panel.close(&#x27;auto-updater.default&#x27;);
+                                        Fire.info(&#x27;Downloading new Fireball version in the background, updater will popup when new version is ready.&#x27;);
+                                    }, 3000);
+                                    break;
+                                case &#x27;confirm-replace&#x27;:
+                                    console.log(&quot;state change to confirm-replace&quot;);
+                                    Updater.quitAndLocateNew();
+                            }
+                        });
+                
+                        plugin.on(&#x27;auto-updater:on-cancel&#x27;, function (opts) {
+                            console.log(&#x27;cancel status: &#x27; + opts.status);
+                            Editor.Panel.close(&#x27;auto-updater.default&#x27;);
+                            //AutoUpdater.checkForUpdates();
+                        });
                         plugin.on(&#x27;auto-updater:ignore-dialog&#x27;, function () {
                             ignoreDialog = true;
                         });
                     },
                 
                     unload: function (plugin) {
-                        AutoUpdater.removeAllListeners();
-                    },
+                        //AutoUpdater.removeAllListeners();
+                    }
                 };
+                
+                
+                
                 
                     </pre>
                 </div>

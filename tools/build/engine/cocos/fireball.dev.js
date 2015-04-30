@@ -242,7 +242,7 @@ function _copyprop(name, source, target) {
  * @class JS
  * @static
  */
-var JS = Fire.JS = {
+var JS = {
 
     /**
      * copy all properties not defined in obj from arguments[1...n]
@@ -328,6 +328,8 @@ var JS = Fire.JS = {
         }
     }
 };
+
+Fire.JS = JS;
 
 /**
  * Get class name of the object, if object is just a {} (and which class named 'Object'), it will return null.
@@ -497,11 +499,13 @@ JS.getClassName = function (obj) {
  * @param {string} prop
  * @param {function} getter
  * @param {function} setter
+ * @param {boolean} [enumerable=false]
  */
-JS.getset = function (obj, prop, getter, setter) {
+JS.getset = function (obj, prop, getter, setter, enumerable) {
     Object.defineProperty(obj, prop, {
         get: getter,
-        set: setter
+        set: setter,
+        enumerable: !!enumerable
     });
 };
 
@@ -511,10 +515,12 @@ JS.getset = function (obj, prop, getter, setter) {
  * @param {any} obj
  * @param {string} prop
  * @param {function} getter
+ * @param {boolean} [enumerable=false]
  */
-JS.get = function (obj, prop, getter) {
+JS.get = function (obj, prop, getter, enumerable) {
     Object.defineProperty(obj, prop, {
-        get: getter
+        get: getter,
+        enumerable: !!enumerable
     });
 };
 
@@ -524,10 +530,12 @@ JS.get = function (obj, prop, getter) {
  * @param {any} obj
  * @param {string} prop
  * @param {function} setter
+ * @param {boolean} [enumerable=false]
  */
-JS.set = function (obj, prop, setter) {
+JS.set = function (obj, prop, setter, enumerable) {
     Object.defineProperty(obj, prop, {
-        set: setter
+        set: setter,
+        enumerable: !!enumerable
     });
 };
 
@@ -664,8 +672,8 @@ if (_TestEnum.ZERO !== 0 || _TestEnum.ONE !== 1 || _TestEnum.TWO !== 2 || _TestE
 
 
 (function () {
-    var _d2r = Math.PI/180.0;
-    var _r2d = 180.0/Math.PI;
+    var _d2r = Math.PI / 180.0;
+    var _r2d = 180.0 / Math.PI;
 
     /**
      * Extends the JavaScript built-in object that has properties and methods for mathematical constants and functions.
@@ -687,6 +695,20 @@ if (_TestEnum.ZERO !== 0 || _TestEnum.ONE !== 1 || _TestEnum.TWO !== 2 || _TestE
          * @type number
          */
         HALF_PI: 0.5 * Math.PI,
+
+        /**
+         * degree to radius
+         * @property D2R
+         * @type number
+         */
+        D2R: _d2r,
+
+        /**
+         * radius to degree
+         * @property R2D
+         * @type number
+         */
+        R2D: _r2d,
 
         /**
          * degree to radius
@@ -2423,7 +2445,7 @@ Fire._fastDefine = function (className, constructor, serializableFields) {
 };
 
 /**
- * !#en Defines a FireClass using the given literal prototype object, please see [Class](/en/scripting/class/) for details.
+ * !#en Defines a FireClass using the given specification, please see [Class](/en/scripting/class/) for details.
  * !#zh 定义一个 FireClass，传入参数必须是一个包含类型参数的字面量对象，具体用法请查阅[类型定义](/zh/scripting/class/)。
  *
  * @method Class
@@ -2485,12 +2507,12 @@ Fire.Class = function (options) {
     }
 
     var name = options.name;
-    var base = options.extends;
+    var base = options.extends || FObject;
     var ctor = (options.hasOwnProperty('constructor') && options.constructor) || undefined;
 
     // create constructor
     var cls;
-    if (base) {
+    //if (base) {
         if (name) {
             cls = Fire.extend(name, base, ctor);
         }
@@ -2498,16 +2520,16 @@ Fire.Class = function (options) {
             cls = Fire.extend(base, ctor);
             name = Fire.JS.getClassName(cls);
         }
-    }
-    else {
-        if (name) {
-            cls = Fire.define(name, ctor);
-        }
-        else {
-            cls = Fire.define(ctor);
-            name = Fire.JS.getClassName(cls);
-        }
-    }
+    //}
+    //else {
+    //    if (name) {
+    //        cls = Fire.define(name, ctor);
+    //    }
+    //    else {
+    //        cls = Fire.define(ctor);
+    //        name = Fire.JS.getClassName(cls);
+    //    }
+    //}
 
     // define properties
     var properties = options.properties;
@@ -2722,7 +2744,7 @@ else {
             };
         }
 
-        path = {
+        var Path = {
             /**
              * Return the last portion of a path.
              * @method basename
@@ -2752,6 +2774,7 @@ path.extname('index.')          // returns '.'
 path.extname('index')           // returns ''
              */
             extname: function (path) {
+                path = Path.basename(path);
                 return path.substring((~-path.lastIndexOf(".") >>> 0) + 1);
             },
 
@@ -2788,10 +2811,12 @@ path.dirname('/foo/bar/baz/asdf/quux') // returns '/foo/bar/baz/asdf'
              * The platform-specific file separator. '\\' or '/'.
              * @property sep
              * @type {string}
+             * @default windows: "\", mac: "/"
+             * @readOnly
              */
-            sep: (Fire.isWin32 ? '\\' : '/'),
+            sep: (Fire.isWin32 ? '\\' : '/')
         };
-        return path;
+        return Path;
     })();
 }
 
@@ -2841,6 +2866,7 @@ FObject = (function () {
         /**
          * @property _name
          * @type string
+         * @default ""
          * @private
          */
         this._name = '';
@@ -2848,6 +2874,7 @@ FObject = (function () {
         /**
          * @property _objFlags
          * @type number
+         * @default 0
          * @private
          */
         this._objFlags = 0;
@@ -2880,33 +2907,34 @@ FObject = (function () {
         enumerable: false
     });
 
-    // instance
+    // member
+
+    var prototype = FObject.prototype;
 
     /**
      * The name of the object.
      * @property name
      * @type string
+     * @default ""
      */
-    Object.defineProperty(FObject.prototype, 'name', {
-        get: function () {
+    JS.getset(prototype, 'name',
+        function () {
             return this._name;
         },
-        set: function (value) {
+        function (value) {
             this._name = value;
-        },
-        enumerable: false
-    });
+        }
+    );
 
     /**
      * Indicates whether the object is not yet destroyed
      * @property isValid
      * @type boolean
      * @default true
+     * @readOnly
      */
-    Object.defineProperty(FObject.prototype, 'isValid', {
-        get: function () {
-            return !(this._objFlags & Destroyed);
-        }
+    JS.get(prototype, 'isValid', function () {
+        return !(this._objFlags & Destroyed);
     });
 
     /**
@@ -2917,7 +2945,7 @@ FObject = (function () {
      * @method destroy
      * @return {boolean} whether it is the first time the destroy being called
      */
-    FObject.prototype.destroy = function () {
+    prototype.destroy = function () {
         if (this._objFlags & Destroyed) {
             Fire.error('object already destroyed');
             return false;
@@ -2938,7 +2966,7 @@ FObject = (function () {
      * @method _destruct
      * @private
      */
-    FObject.prototype._destruct = function () {
+    prototype._destruct = function () {
         // 允许重载destroy
         // 所有可枚举到的属性，都会被清空
         for (var key in this) {
@@ -2962,12 +2990,13 @@ FObject = (function () {
     };
 
     /**
+     * Called before the object being destroyed.
      * @method _onPreDestroy
      * @private
      */
-    FObject.prototype._onPreDestroy = null;
+    prototype._onPreDestroy = null;
 
-    FObject.prototype._destroyImmediate = function () {
+    prototype._destroyImmediate = function () {
         if (this._objFlags & Destroyed) {
             Fire.error('object already destroyed');
             return;
@@ -2981,6 +3010,16 @@ FObject = (function () {
         // mark destroyed
         this._objFlags |= Destroyed;
     };
+
+    /**
+     * Init this object from the custom serialized data.
+     * @method _deserialize
+     * @param {object} data - the serialized json data
+     * @param {_Deserializer} ctx
+     * @param {object} target
+     * @private
+     */
+    prototype._deserialize = null;
 
     return FObject;
 })();
@@ -3722,7 +3761,38 @@ Matrix23.prototype.getScale = function (out) {
 };
 
 /**
+ * Extract translation, rotation and scaling component from this matrix.
+ * Only support negative(mirroring) scaling in some special case.
+ *
+ * @method getTRS
+ * @return {object} {translation: Vec2, rotation: number, scale: Vec2}
+ */
+Matrix23.prototype.getTRS = function () {
+    var r = 0;
+    var s = this.getScale();
+    var mirrored = this.a !== 0 && this.a === -this.d && this.b === 0 && this.c === 0;
+    if (mirrored) {
+        if (this.a < 0) {
+            s.x = -s.x;
+        }
+        else {
+            s.y = -s.y;
+        }
+    }
+    else {
+        r = this.getRotation();
+    }
+    return {
+        translation: new Fire.Vec2(this.tx, this.ty),
+        rotation: r,
+        scale: s
+    };
+};
+
+/**
  * Set scaling of this matrix.
+ *
+ * NOTE: Can not scale negative scaling (mirroring) and zero scaling matrix.
  * @method setScale
  * @param {Vec2} scale
  * @return {Matrix23}
@@ -4662,7 +4732,12 @@ var _Deserializer = (function () {
             // instantiate a new object
             obj = new klass();
             if ( Fire._isFireClass(klass) ) {
-                _deserializeFireClass(self, obj, serialized, klass, target);
+                if (! obj._deserialize) {
+                    _deserializeFireClass(self, obj, serialized, klass, target);
+                }
+                else {
+                    obj._deserialize(serialized.content, self, target);
+                }
             }
             else {
                 _deserializeTypedObject(self, obj, serialized);
@@ -5075,6 +5150,11 @@ var Asset = Fire.Class({
             Fire.error('Have not defined any RawTypes yet, no need to set raw file\'s extname.');
         }
     }
+
+    /*
+    Virtual function inherited from FObject:
+        _onPreDestroy: function () {}
+    */
 });
 
 Fire.Asset = Asset;
@@ -5199,8 +5279,61 @@ Fire.Texture = (function () {
     //    this.height = this.image.height;
     //};
 
+    /**
+     * Returns pixel color at coordinates (x, y).
+     *
+     * If the pixel coordinates are out of bounds (larger than width/height or small than 0),
+     * they will be clamped or repeated based on the texture's wrap mode.
+     *
+     * @method getPixel
+     * @param {number} x
+     * @param {number} y
+     * @return {Fire.Color}
+     */
+    Texture.prototype.getPixel = function (x, y) {
+        if (!canvasCtxToGetPixel) {
+            var canvas = document.createElement('canvas');
+            canvas.width = 1;
+            canvas.height = 1;
+            canvasCtxToGetPixel = canvas.getContext('2d');
+        }
+        if (this.wrapMode === Texture.WrapMode.Clamp) {
+            x = Math.clamp(x, 0, this.image.width);
+            y = Math.clamp(y, 0, this.image.height);
+        }
+        else if (this.wrapMode === Texture.WrapMode.Repeat) {
+            x = x % this.image.width;
+            if (x < 0) {
+                x += this.image.width;
+            }
+            y = y % this.image.width;
+            if (y < 0) {
+                y += this.image.width;
+            }
+        }
+        canvasCtxToGetPixel.clearRect(0, 0, 1, 1);
+        canvasCtxToGetPixel.drawImage(this.image, x, y, 1, 1, 0, 0, 1, 1);
+
+        var imgBytes = null;
+        try {
+            imgBytes = canvasCtxToGetPixel.getImageData(0, 0, 1, 1).data;
+        }
+        catch (e) {
+            Fire.error("An error has occurred. This is most likely due to security restrictions on reading canvas pixel data with local or cross-domain images.");
+            return Fire.Color.transparent;
+        }
+        var result = new Fire.Color();
+        result.r = imgBytes[0] / 255;
+        result.g = imgBytes[1] / 255;
+        result.b = imgBytes[2] / 255;
+        result.a = imgBytes[3] / 255;
+        return result;
+    };
+
     return Texture;
 })();
+
+var canvasCtxToGetPixel = null;
 
 Fire.Sprite = (function () {
 
@@ -5292,6 +5425,27 @@ Fire.Sprite = (function () {
      * @type number
      */
     Sprite.prop('rawHeight', 0, Fire.Integer_Obsoleted, Fire.HideInInspector);
+
+    /**
+     * Use pixel-level hit testing.
+     * @property pixelLevelHitTest
+     * @type boolean
+     * @default false
+     */
+    Sprite.prop('pixelLevelHitTest', false, Fire.Tooltip('Use pixel-level hit testing.'));
+
+    /**
+     * The highest alpha channel value that is considered opaque for hit test. [0, 1]
+     * @property alphaThreshold
+     * @type number
+     * @default 0.1
+     */
+    Sprite.prop('alphaThreshold', 0.1,
+        Fire.Watch('pixelLevelHitTest', function (obj, propEL) {
+            propEL.disabled = !obj.pixelLevelHitTest;
+        }),
+        Fire.Tooltip('The highest alpha channel value that is considered opaque for hit test.')
+    );
 
     /**
      * @property rotatedWidth
@@ -6033,60 +6187,65 @@ Editor._AssetsWatcher = AssetsWatcher;
 var editorCallback = {
 
 
-    onEnginePlayed: null,
-    onEngineStopped: null,
-    onEnginePaused: null,
+    onEnginePlayed: function () {},
+    onEngineStopped: function () {},
+    onEnginePaused: function () {},
 
     // This will be called before component callbacks
-    onEntityCreated: null,
+    onEntityCreated: function () {},
 
     /**
      * removes an entity and all its children from scene, this method will NOT be called if it is removed by hierarchy.
      * @param {Entity} entity - the entity to remove
      * @param {boolean} isTopMost - indicates whether it is the most top one among the entities who will be deleted in one operation
      */
-    onEntityRemoved: null,
+    onEntityRemoved: function () {},
 
-    onEntityParentChanged: null,
+    onEntityParentChanged: function () {},
 
     /**
      * @param {Entity} entity
      * @param {number} oldIndex
      * @param {number} newIndex
      */
-    onEntityIndexChanged: null,
+    onEntityIndexChanged: function () {},
 
-    onEntityRenamed: null,
-
-    /**
-     * @param {Scene} scene
-     */
-    onStartUnloadScene: null,
+    onEntityRenamed: function () {},
 
     /**
      * @param {Scene} scene
      */
-    onSceneLaunched: null,
+    onStartUnloadScene: function () {},
+
+    /**
+     * @param {Scene} scene
+     */
+    onSceneLaunched: function () {},
+
+    /**
+     * @param {Scene} scene
+     */
+    onBeforeActivateScene: function () {},
 
     ///**
     // * @param {Scene} scene
     // */
     //onSceneLoaded: null,
 
-    onComponentEnabled: null,
-    onComponentDisabled: null,
+    onComponentEnabled: function () {},
+    onComponentDisabled: function () {},
 
     /**
      * @param {Entity} entity
      * @param {Component} component
      */
-    onComponentAdded: null,
+    onComponentAdded: function () {},
 
     /**
      * @param {Entity} entity
      * @param {Component} component
      */
-    onComponentRemoved: null
+    onComponentRemoved: function () {}
 };
 
 // Mockers for editor-core
@@ -6159,8 +6318,25 @@ Fire.ContentStrategyType = ContentStrategyType;
 
 var __TESTONLY__ = {};
 Fire.__TESTONLY__ = __TESTONLY__;
-Fire._Runtime = {};
-JS.getset(Fire._Runtime, 'RenderContext',
+function callInNextTick (callback, p1, p2) {
+    if (callback) {
+        setTimeout(function () {
+            callback(p1, p2);
+        }, 1);
+    }
+}
+
+
+var Runtime = {
+    init: function () {
+        //
+    },
+    render: function (renderContext) {
+        Engine._scene.render(renderContext || Engine._renderContext);
+    }
+};
+
+JS.getset(Runtime, 'RenderContext',
     function () {
         return RenderContext;
     },
@@ -6168,6 +6344,8 @@ JS.getset(Fire._Runtime, 'RenderContext',
         RenderContext = value;
     }
 );
+
+Fire._Runtime = Runtime;
 
 /**
  * !#en The interface to get time information from Fireball.
@@ -6230,13 +6408,16 @@ var Time = (function () {
 
     /**
      * @method Fire.Time._update
+     * @param {number} timestamp
      * @param {boolean} [paused=false] if true, only realTime will be updated
+     * @param {number} [maxDeltaTime=Time.maxDeltaTime]
      * @private
      */
-    Time._update = function (timestamp, paused) {
+    Time._update = function (timestamp, paused, maxDeltaTime) {
         if (!paused) {
+            maxDeltaTime = maxDeltaTime || Time.maxDeltaTime;
             var delta = timestamp - lastUpdateTime;
-            delta = Math.min(Time.maxDeltaTime, delta);
+            delta = Math.min(maxDeltaTime, delta);
             lastUpdateTime = timestamp;
 
             ++Time.frameCount;
@@ -6426,6 +6607,11 @@ var Event = (function () {
 
 Fire.Event = Event;
 
+function CustomEvent (type, bubbles) {
+    Event.call(this, type, bubbles);
+    this.detail = null;
+}
+
 var EventListeners = (function () {
 
     /**
@@ -6443,14 +6629,14 @@ var EventListeners = (function () {
         var list = this._callbackTable[event.type];
         if (list && list.length > 0) {
             if (list.length === 1) {
-                list[0](event);
+                list[0].call(event.currentTarget, event);
                 return;
             }
             var endIndex = list.length - 1;
             var lastFunc = list[endIndex];
             for (var i = 0; i <= endIndex; ++i) {
                 var callingFunc = list[i];
-                callingFunc(event);
+                callingFunc.call(event.currentTarget, event);
                 if (event._propagationImmediateStopped || i === endIndex) {
                     break;
                 }
@@ -6699,6 +6885,25 @@ var EventTarget = (function () {
         }
     };
 
+    /**
+     * Send an event to this object directly, this method will not propagate the event to any other objects.
+     * The event will be created from the supplied message, you can get the "detail" argument from event.detail.
+     *
+     * @method emit
+     * @param {string} message - the message to send
+     * @param {any} [detail] - whatever argument the message needs
+     */
+    EventTarget.prototype.emit = function (message, detail) {
+        if ( typeof message === 'string' ) {
+            var event = new CustomEvent(message);
+            event.detail = detail;
+            this._doSendEvent(event);
+        }
+        else {
+            Fire.error('The message must be provided');
+        }
+    };
+
     ///**
     // * Send an event to this object directly, this method will not propagate the event to any other objects.
     // *
@@ -6755,6 +6960,133 @@ var EventTarget = (function () {
 })();
 
 Fire.EventTarget = EventTarget;
+
+var Playable = (function () {
+    /**
+     * @class Playable
+     * @constructor
+     */
+    function Playable () {
+        this._isPlaying = false;
+        this._isPaused = false;
+        this._stepOnce = false;
+    }
+
+    //JS.extend(Playable, EventTarget);
+
+    var prototype = Playable.prototype;
+
+    /**
+     * Is playing or paused in play mode?
+     * @property isPlaying
+     * @type {boolean}
+     * @default false
+     * @readOnly
+     */
+    JS.get(prototype, 'isPlaying', function () {
+        return this._isPlaying;
+    }, true);
+
+    /**
+     * Is currently paused? This can be true even if in edit mode(isPlaying == false).
+     * @property isPaused
+     * @type {boolean}
+     * @default false
+     * @readOnly
+     */
+    JS.get(prototype, 'isPaused', function () {
+        return this._isPaused;
+    }, true);
+
+    // virtual
+
+    var virtual = function () {};
+    /**
+     * @method onPlay
+     * @private
+     */
+    prototype.onPlay = virtual;
+    /**
+     * @method onPause
+     * @private
+     */
+    prototype.onPause = virtual;
+    /**
+     * @method onResume
+     * @private
+     */
+    prototype.onResume = virtual;
+    /**
+     * @method onStop
+     * @private
+     */
+    prototype.onStop = virtual;
+    /**
+     * @method onError
+     * @param {string} errorCode
+     * @private
+     */
+    prototype.onError = virtual;
+
+    // public
+
+    /**
+     * @method play
+     */
+    prototype.play = function () {
+        if (this._isPlaying) {
+            if (this._isPaused) {
+                this._isPaused = false;
+                this.onResume();
+                //this.emit('resume');
+            }
+            else {
+                this.onError('already-playing');
+                //this.emit('error', 'already-play');
+            }
+        }
+        else {
+            this._isPlaying = true;
+            this.onPlay();
+            //this.emit('play');
+        }
+    };
+
+    /**
+     * @method stop
+     */
+    prototype.stop = function () {
+        if (this._isPlaying) {
+            this._isPlaying = false;
+            this._isPaused = false;
+            //this.emit('stop');
+            this.onStop();
+        }
+    };
+
+    /**
+     * @method pause
+     */
+    prototype.pause = function () {
+        this._isPaused = true;
+        //this.emit('pause');
+        this.onPause();
+    };
+
+    /**
+     * Perform a single frame step.
+     * @method step
+     */
+    prototype.step = function () {
+        this.pause();
+        this._stepOnce = true;
+        if (!this._isPlaying) {
+            this.play();
+        }
+    };
+
+    return Playable;
+})();
 
 var Ticker = (function () {
     var Ticker = {};
@@ -8104,7 +8436,7 @@ var SpriteRenderer = (function () {
         function (value) {
             this._color = value;
             if (this._hasRenderObj) {
-                Engine._renderContext.updateSpriteColor(this);
+                Engine._renderContext.updateColor(this);
             }
         }
     );
@@ -8336,6 +8668,25 @@ var BitmapText = (function () {
 
     BitmapText.prop('_anchor', Fire.TextAnchor.midCenter, Fire.HideInInspector);
 
+
+    /**
+     * The color of the text.
+     * @property color
+     * @type {Color}
+     * @default Fire.Color.white
+     */
+    BitmapText.getset('color',
+        function () {
+            return this._color;
+        },
+        function (value) {
+            this._color = value;
+            Engine._renderContext.updateColor(this, value);
+        }
+    );
+
+    BitmapText.prop('_color', Fire.Color.white, Fire.HideInInspector);
+
     /**
      * The anchor point of the text.
      * @property anchor
@@ -8400,7 +8751,7 @@ var BitmapText = (function () {
     BitmapText.prototype.onPreRender = function () {
         this.getSelfMatrix(tempMatrix);
         tempMatrix.prepend(this.transform._worldTransform);
-        RenderContext.updateBitmapTextTransform(this, tempMatrix);
+        Engine._curRenderContext.updateBitmapTextTransform(this, tempMatrix);
     };
 
     BitmapText.prototype.getSelfMatrix = function (out) {
@@ -8649,7 +9000,7 @@ var Text = (function () {
         onPreRender: function () {
             this.getSelfMatrix(tempMatrix);
             tempMatrix.prepend(this.transform._worldTransform);
-            RenderContext.updateTextTransform(this, tempMatrix);
+            Engine._curRenderContext.updateTextTransform(this, tempMatrix);
         }
     });
 
@@ -8894,6 +9245,10 @@ var Camera = Fire.Class({
     },
 
     _calculateTransform: function (out_matrix, out_worldPos) {
+        // TODO: 等 fireball-x/dev#388 完成后去掉该保护代码
+        if (!this._contentStrategyInst) {
+            this._contentStrategyInst = Fire.Screen.ContentStrategy.fromType(this._contentStrategy);
+        }
         var viewportInfo = this.viewportInfo;
         var scale = viewportInfo.scale;
         var viewport = viewportInfo.viewport;
@@ -8983,7 +9338,10 @@ var InteractionContext = (function () {
                     var obb = obbMap[entity.id];
                     var polygon = new Fire.Polygon(obb);
                     if (polygon.contains(worldPosition)) {
-                        return entity;
+                        var chackHit = entity.hitTest(worldPosition.x, worldPosition.y);
+                        if (chackHit) {
+                            return entity;
+                        }
                     }
                 }
             }
@@ -9059,9 +9417,7 @@ var Entity = Fire.Class({
 
     constructor: function () {
         var name = arguments[0];
-
         this._name = typeof name !== 'undefined' ? name : 'New Entity';
-        this._objFlags |= Entity._defaultFlags;
 
         if (Fire._isCloning) {
             // create by deserializer or instantiating
@@ -9599,6 +9955,58 @@ var Entity = Fire.Class({
         this.setSiblingIndex(-1);
     },
 
+    /**
+     * Tests whether the entity intersects the specified point in world coordinates
+     * This ignores the alpha of the renderer.
+     *
+     * @method hitTest
+     * @param {number} worldX The world X position to check.
+     * @param {number} worldY The world Y position to check.
+     * @return {boolean} A Boolean indicating whether the Entity intersect the specified world position.
+     */
+    hitTest: function (worldX, worldY) {
+        var renderer = this.getComponent(Fire.SpriteRenderer);
+        if (! renderer || ! renderer.sprite) {
+            return false;
+        }
+
+        var worldMatrix = this.transform.getLocalToWorldMatrix();
+        var spriteMatrix = new Fire.Matrix23();
+        renderer.getSelfMatrix(spriteMatrix);
+        // TODO getSelfRenderMatrix
+        spriteMatrix.a = renderer.width / renderer.sprite.width;
+        spriteMatrix.d = renderer.height / renderer.sprite.height;
+        if (renderer.sprite.rotated) {
+            spriteMatrix.b = spriteMatrix.d;
+            spriteMatrix.c = -spriteMatrix.a;
+            spriteMatrix.a = 0;
+            spriteMatrix.d = 0;
+            spriteMatrix.ty -= renderer.height;
+        }
+        var matrix = spriteMatrix.prepend(worldMatrix);
+        matrix.invert();
+        var point = matrix.transformPoint(new Fire.Vec2(worldX, worldY));
+        // 因为世界坐标是Y轴向上，图片是Y轴向下，所以这边进行图片反转
+        point.y = -point.y;
+        point.x += renderer.sprite.x;
+        point.y += renderer.sprite.y;
+
+        var texture = renderer.sprite.texture;
+        if (! texture) {
+            return false;
+        }
+
+        if (0 < point.x && point.x < texture.width  &&
+            0 < point.y && point.y < texture.height) {
+            var alphaThreshold = renderer.sprite.alphaThreshold;
+            if (renderer.sprite.pixelLevelHitTest && alphaThreshold > 0) {
+                return texture.getPixel(point.x, point.y).a >= alphaThreshold;
+            }
+            return true;
+        }
+        return false;
+    },
+
     ////////////////////////////////////////////////////////////////////
     // other methods
     ////////////////////////////////////////////////////////////////////
@@ -9791,11 +10199,18 @@ var Scene = (function () {
         }
     };
 
+    /**
+     * The default scene rendering operation invoked by runtime.
+     * @method render
+     * @param {_Runtime.RenderContext} renderContext
+     */
     Scene.prototype.render = function (renderContext) {
         Engine._curRenderContext = renderContext;
 
         // updateTransform
         this.updateTransform(renderContext.camera || this.camera);
+
+        renderContext.onPreRender();
 
         // call onPreRender
         var entities = this.entities;
@@ -10219,18 +10634,14 @@ var AssetLibrary = (function () {
          */
         _loadAssetByUuid: function (uuid, callback, handle, existingAsset) {
             if (typeof uuid !== 'string') {
-                if (callback) {
-                    callback('[AssetLibrary] uuid must be string', null);
-                }
+                callInNextTick(callback, '[AssetLibrary] uuid must be string', null);
                 return;
             }
             // step 1
             if ( !existingAsset ) {
                 var asset = handle.readCache(uuid);
                 if (asset) {
-                    if (callback) {
-                        callback(null, asset);
-                    }
+                    callInNextTick(callback, null, asset);
                     return;
                 }
             }
@@ -10244,10 +10655,11 @@ var AssetLibrary = (function () {
                 return;
             }
 
-            // step 4
+            // step 3
+
             var url = _libraryBase + uuid.substring(0, 2) + Fire.Path.sep + uuid;
 
-            // step 5
+            // step 4
             LoadManager.loadByLoader(JsonLoader, url,
                 function (error, json) {
                     function onDeserializedWithDepends (err, asset) {
@@ -10476,21 +10888,305 @@ var AssetLibrary = (function () {
 
 Fire.AssetLibrary = AssetLibrary;
 
+function normalizePath (path) {
+    if (path.slice(0, 2) === './') {
+        path = path.slice(2);
+    }
+    else if (path[0] === '/') {
+        path = path.slice(1);
+    }
+    return path;
+}
+
+/**
+ * AssetBundleBase 为 Resources 提供了上层接口，用于加载资源包里的资源。
+ * @class AssetBundleBase
+ * @constructor
+ */
+function AssetBundleBase () {
+    this._pathToUuid = {};
+}
+
+var GLOB = '**/*';
+var GLOB_LEN = GLOB.length;
+
+AssetBundleBase._hasWildcard = function (path) {
+    var endsWithGlob = path.substr(-GLOB_LEN, GLOB_LEN) === GLOB;
+    return endsWithGlob;
+};
+
+JS.mixin(AssetBundleBase.prototype, {
+
+    /**
+     * Check if the bundle contains a specific object.
+     *
+     * Note:
+     * All asset paths in Fireball use forward slashes, paths using backslashes will not work.
+     *
+     * @method contains
+     * @param {string} path - not support wildcard
+     * @returns {boolean}
+     */
+    contains: function (path) {
+        return (path in this._pathToUuid);
+    },
+
+    /**
+     * Return all asset paths in the bundle.
+     * @method getAllPaths
+     * @returns {string[]}
+     */
+    getAllPaths: function () {
+        return Object.keys(this._pathToUuid);
+    },
+
+    _loadByWildcard: function (path, callback) {
+        var originPath = path.slice(0, -GLOB_LEN);
+        var originPathLen = originPath.length;
+        var results = [];
+        var remain = 0;
+        function onLoad (err, asset) {
+            if (asset) {
+                results.push(asset);
+                if (--remain <= 0) {
+                    if (callback) {
+                        callback(null, results);
+                    }
+                }
+            }
+            else {
+                // error
+                if (callback) {
+                    callback(err, results);
+                    callback = null;
+                }
+            }
+        }
+        var p2u = this._pathToUuid;
+        for (var p in p2u) {
+            if (p.slice(0, originPathLen) === originPath) {
+                ++remain;
+                var uuid = p2u[p];
+                AssetLibrary.loadAsset(uuid, onLoad);
+            }
+        }
+        return remain > 0;
+    },
+
+    /**
+     * Loads asset with path from the bundle asynchronously.
+     *
+     * wildcard:
+     * - 如果路径以 &#42;&#42;&#47;&#42; 作为结尾，则该路径下的所有资源都会被加载，含子文件夹。
+     *   此时 callback 的第二参数将返回数组，如果文件夹下没有资源，数组长度将会是 0。如果加载出错，数组内的元素将不全。
+     *
+     * Note:
+     * All asset paths in Fireball use forward slashes, paths using backslashes will not work.
+     *
+     * @method load
+     * @param {string} path
+     * @param {function} [callback]
+     * @param {string} callback.param error - null or the error info
+     * @param {object} callback.param data - the loaded object or null
+     * @param {boolean} [silence=false] - If true, the callback will not invoked even if asset is not found.
+     * @return {boolean} start loading
+     */
+    load: function (path, callback, silence) {
+        if (! path) {
+            if (! silence) {
+                callInNextTick(callback, 'Argument must be non-nil', null);
+            }
+            return false;
+        }
+        path = normalizePath(path);
+        var uuid = this._pathToUuid[path];
+        if (uuid) {
+            AssetLibrary.loadAsset(uuid, callback);
+            return true;
+        }
+        else if (AssetBundleBase._hasWildcard(path)) {
+            var loading = this._loadByWildcard(path, callback);
+            if ( !loading && !silence ) {
+                callInNextTick(callback, null, []);
+            }
+            return loading;
+        }
+        else if (! silence) {
+            callInNextTick(callback, 'Path not exists', null);
+            return false;
+        }
+    },
+
+    ///**
+    // * The load method that should be implemented by sub class
+    // * @method _doLoad
+    // * @param {string} uuid
+    // * @param {function} callback
+    // * @param {string} callback.param error - null or the error info
+    // * @param {object} callback.param data - the loaded object or null
+    // * @private
+    // */
+    //_loader: function (uuid, callback) {
+    //    callback('NYI', null);
+    //}
+
+    /**
+     * @method _add
+     * @param {string} path - the path to load, should NOT include filename extensions.
+     * @param {string} uuid
+     * @private
+     */
+    _add: function (path, uuid) {
+        //// remove extname
+        //// (can not use slice because length of extname maybe 0)
+        //path = path.substring(0, path - Fire.Path.extname(path).length);
+        this._pathToUuid[path] = uuid;
+    },
+    _removeByPath: function (path) {
+        delete this._pathToUuid[path];
+    }
+    //_removeByUuid: function (uuid) {
+    //    for (var path in this._pathToUuid) {
+    //        if (this._pathToUuid[path] === uuid) {
+    //            delete this._pathToUuid[path];
+    //            return;
+    //        }
+    //    }
+    //}
+});
+
+/**
+ * 这个加载类用于在运行时访问项目里的 Resources 目录
+ * @class ResourcesBundle
+ * @constructor
+ * @extends AssetBundleBase
+ */
+function ResourcesBundle () {
+    AssetBundleBase.call(this);
+}
+JS.extend(ResourcesBundle, AssetBundleBase);
+
+JS.mixin(ResourcesBundle.prototype, {
+
+    init: function (pathToUuid) {
+        JS.mixin(this._pathToUuid, pathToUuid);
+    }
+
+});
+
+/**
+ * Resources 模块允许你在运行时动态加载资源。资源以路径的形式标识，路径不能包含文件后缀名。
+ * Resources 能够使用路径加载项目里所有 `Resources` 目录下的资源，例如 `sprites/npc/001`。
+ * @class Resources
+ * @static
+ */
+var Resources = {
+
+    // {
+    //     baseDir: {string},
+    //     bundle: {AssetBundleBase},
+    // }
+    _mounts: [],
+
+    /**
+     * @property _resBundle
+     * @type ResourcesBundle
+     */
+    _resBundle: new ResourcesBundle(),
+
+    /**
+     * Note:
+     * All asset paths in Fireball use forward slashes, paths using backslashes will not work.
+     *
+     * @method mount
+     * @param {string} baseDir
+     * @param {AssetBundleBase} bundle
+     * @private
+     */
+    mount: function (baseDir, bundle) {
+        if (! baseDir && baseDir !== '') {
+            Fire.error('Invalid baseDir');
+        }
+        // trim path
+        baseDir = normalizePath(baseDir);
+        if (baseDir.slice(-1) === '/') {
+            baseDir = baseDir.slice(0, -1);
+        }
+        //
+        this._mounts.push({
+            baseDir: baseDir,
+            bundle: bundle
+        });
+    },
+
+    /**
+     * Loads asset with path from resources asynchronously.
+     *
+     * Note:
+     * All asset paths in Fireball use forward slashes, paths using backslashes will not work.
+     *
+     * @method load
+     * @param {string} path
+     * @param {function} callback
+     * @param {string} callback.param error - null or the error info
+     * @param {object} callback.param data - the loaded object or null
+     */
+    load: function (path, callback) {
+        if (! path) {
+            return callback('Argument must be non-nil', null);
+        }
+        path = normalizePath(path);
+
+        var mounts = this._mounts;
+        for (var i = mounts.length - 1; i >= 0; i--) {
+            var item = mounts[i];
+            var baseDir = item.baseDir;
+            var bundle = item.bundle;
+            if (baseDir === "") {
+                if (bundle.load(path, callback, true)) {
+                    return;
+                }
+            }
+            else if (path.slice(0, baseDir.length) === baseDir) {
+                var relative = path.slice(baseDir.length + 1);
+                if (bundle.load(relative, callback, true)) {
+                    return;
+                }
+            }
+        }
+        // not found
+        if (AssetBundleBase._hasWildcard(path)) {
+            return callback(null, []);
+        }
+        else {
+            return callback('Path not exists', null);
+        }
+    }
+};
+
+Fire.Resources = Resources;
+
+// mount resources by default
+
+Resources.mount('', Resources._resBundle);
+
 
 var Engine = (function () {
 
     /**
-     * !#zh 这个模块提供引擎的一些全局接口和状态状态
+     * !#zh 这个静态模块提供引擎运行时的一些全局接口和状态状态。
+     * !#en Access to engine runtime data.
+     * This class contains static methods for looking up information about and controlling the runtime data.
      *
      * @class Engine
      * @static
+     * @extends Playable
      */
     var Engine = {
     };
+    Playable.call(Engine);
+    JS.mixin(Engine, Playable.prototype);
 
-    var isPlaying = false;
-    var isPaused = false;
-    var stepOnce = false;
     var loadingScene = '';
 
     // We should use this id to cancel ticker, otherwise if the engine stop and replay immediately,
@@ -10550,28 +11246,7 @@ var Engine = (function () {
     Engine._inputContext = null;
 
     /**
-     * is in player or playing in editor?
-     * @property isPlaying
-     * @type {boolean}
-     * @readOnly
      */
-    Object.defineProperty(Engine, 'isPlaying', {
-        get: function () {
-            return isPlaying;
-        }
-    });
-
-    /**
-     * is editor currently paused?
-     * @property isPaused
-     * @type {boolean}
-     * @readOnly
-     */
-    Object.defineProperty(Engine, 'isPaused', {
-        get: function () {
-            return isPaused;
-        }
-    });
 
     /**
      * is loading scene?
@@ -10579,27 +11254,26 @@ var Engine = (function () {
      * @type {boolean}
      * @readOnly
      */
-    Object.defineProperty(Engine, 'loadingScene', {
-        get: function () {
-            return loadingScene;
-        }
+    JS.get(Engine, 'loadingScene', function () {
+        return loadingScene;
     });
 
     var lockingScene = null;
 
     /**
-     * !#en You should check whether you can modify the scene in constructors which may called by the engine while deserializing.
+     * !#en You should check whether you can modify the scene in constructors which may called by the engine while
+     * deserializing.
      * !#zh 这个属性用来判断场景物体的构造函数执行时是否可以把物体加到场景里。
      * 这个属性和 Fire._isCloning 很类似。但这里关注的是场景是否能修改，而 Fire._isCloning 强调的是持有的对象是否需要重新创建。
      * @property _canModifyCurrentScene
      * @type {boolean}
      * @private
      */
-    Object.defineProperty(Engine, '_canModifyCurrentScene', {
-        get: function () {
+    JS.getset(Engine, '_canModifyCurrentScene',
+        function () {
             return !lockingScene;
         },
-        set: function (value) {
+        function (value) {
             if (value) {
                 // unlock
                 this._scene = lockingScene;
@@ -10614,18 +11288,17 @@ var Engine = (function () {
                 this._scene = null;
             }
         }
-    });
+    );
 
     var inited = false;
+
     /**
      * @property inited
      * @type {boolean}
      * @readOnly
      */
-    Object.defineProperty(Engine, 'inited', {
-        get: function () {
-            return inited;
-        }
+    JS.get(Engine, 'inited', function () {
+        return inited;
     });
 
     // Scene name to uuid
@@ -10649,84 +11322,42 @@ var Engine = (function () {
         }
         inited = true;
 
-        Engine._renderContext = new Fire._Runtime.RenderContext( w, h, canvas );
+        Engine._renderContext = new Runtime.RenderContext( w, h, canvas );
         Engine._interactionContext = new InteractionContext();
+
+        Runtime.init();
 
         if (options) {
             JS.mixin(Engine._sceneInfos, options.scenes);
+            Resources._resBundle.init(options.resBundle);
         }
         return Engine._renderContext;
     };
 
-    /**
-     * Start the engine loop. This method will be called by boot.js or editor.
-     * @method play
-     */
-    Engine.play = function () {
-        if (isPlaying && !isPaused) {
-            Fire.warn('Fireball is already playing');
-            return;
-        }
-        if (isPlaying && isPaused) {
-            isPaused = false;
-            return;
-        }
-        isPlaying = true;
-
+    Engine.onPlay = function () {
         Engine._inputContext = new InputContext(Engine._renderContext);
         var now = Ticker.now();
         Time._restart(now);
-        update();
+        this.update();
 
     };
 
-    /**
-     * Stop the engine loop.
-     * @method stop
-     */
-    Engine.stop = function () {
-        if (isPlaying) {
-            FObject._deferredDestroy();
-            Engine._inputContext.destruct();
-            Engine._inputContext = null;
-            Input._reset();
+    Engine.onStop = function () {
+        FObject._deferredDestroy();
 
-            // reset states
-            isPlaying = false;
-            isPaused = false;
-            loadingScene = ''; // TODO: what if loading scene ?
-            if (requestId !== -1) {
-                Ticker.cancelAnimationFrame(requestId);
-                requestId = -1;
-            }
+        Engine._inputContext.destruct();
+        Engine._inputContext = null;
 
+        Input._reset();
+
+        // reset states
+        loadingScene = ''; // TODO: what if loading scene ?
+        if (requestId !== -1) {
+            Ticker.cancelAnimationFrame(requestId);
+            requestId = -1;
         }
-    };
 
-    /**
-     * Pause the engine loop.
-     * @method pause
-     */
-    Engine.pause = function () {
-        isPaused = true;
     };
-
-    /**
-     * Perform a single frame step.
-     * @method step
-     */
-    Engine.step = function () {
-        this.pause();
-        stepOnce = true;
-        if ( !isPlaying ) {
-            Engine.play();
-        }
-    };
-
-    function render () {
-        // render
-        Engine._scene.render(Engine._renderContext);
-    }
 
     function doUpdate (updateLogic) {
         if (Engine._scene) {
@@ -10734,7 +11365,7 @@ var Engine = (function () {
                 Engine._scene.update();
                 FObject._deferredDestroy();
             }
-            render();
+            Runtime.render();
 
             // update interaction context
             Engine._interactionContext.update(Engine._scene.entities);
@@ -10745,27 +11376,27 @@ var Engine = (function () {
      * @method update
      * @private
      */
-    function update (unused) {
-        if (!isPlaying) {
+    Engine.update = function (unused) {
+        if (!Engine._isPlaying) {
             return;
         }
-        requestId = Ticker.requestAnimationFrame(update);
+        requestId = Ticker.requestAnimationFrame(Engine.update);    // no bind this
 
         //if (sceneLoadingQueue) {
         //    return;
         //}
 
-        var updateLogic = !isPaused || stepOnce;
-        stepOnce = false;
+        var updateLogic = !Engine._isPaused || Engine._stepOnce;
         var now = Ticker.now();
-        Time._update(now, !updateLogic);
+        Time._update(now, !updateLogic, Engine._stepOnce ? 1 / 60 : 0);
+        Engine._stepOnce = false;
+
         doUpdate(updateLogic);
 
         if (__TESTONLY__.update) {
             __TESTONLY__.update(updateLogic);
         }
-    }
-    Engine.update = update;
+    };
 
     /**
      * Launch loaded scene.
@@ -10804,7 +11435,9 @@ var Engine = (function () {
         Engine._dontDestroyEntities.length = 0;
         Engine._scene = scene;
         Engine._renderContext.onSceneLaunched(scene);
+
         scene.activate();
+
     };
 
     /**
@@ -10866,7 +11499,9 @@ var Engine = (function () {
     /**
      * Preloads the scene to reduces loading time. You can call this method at any time you want.
      *
-     * After calling this method, you still need to launch the scene by `Engine.loadScene` because the loading logic will not changed. It will be totally fine to call `Engine.loadScene` at any time even if the preloading is not yet finished, the scene will be launched after loaded automatically.
+     * After calling this method, you still need to launch the scene by `Engine.loadScene` because the loading logic
+     * will not changed. It will be totally fine to call `Engine.loadScene` at any time even if the preloading is not
+     * yet finished, the scene will be launched after loaded automatically.
      * @method preloadScene
      * @param {string} sceneName - the name of the scene to preload
      * @param {function} [onLoaded] - callback, will be called after the scene loaded
@@ -10888,6 +11523,37 @@ var Engine = (function () {
 })();
 
 Fire.Engine = Engine;
+
+// refine inherited api doc
+
+/**
+ * is in player or playing in editor?
+ * @property isPlaying
+ * @type {boolean}
+ * @readOnly
+ */
+/**
+ * is editor currently paused?
+ * @property isPaused
+ * @type {boolean}
+ * @readOnly
+ */
+/**
+ * Start the engine loop. This method will be called by boot.js or editor.
+ * @method play
+ */
+/**
+ * Stop the engine loop.
+ * @method stop
+ */
+/**
+ * Pause the engine loop.
+ * @method pause
+ */
+/**
+ * Perform a single frame step.
+ * @method step
+ */
 
 
 var ModifierKeyStates = (function () {
@@ -11499,42 +12165,15 @@ Object.defineProperty(Screen, 'height', {
 });
 
 /**
- * The canvas's parent node in dom.
- * @property _container
- * @type {HTMLElement}
- * @private
- */
-Object.defineProperty(Screen, '_container', {
-    get: function () {
-        var canvas = Fire.Engine._renderContext.canvas;
-        return canvas.parentNode;
-    }
-});
-
-/**
- * The container's parent node in dom.
- * @property _frame
- * @type {HTMLElement}
- * @private
- */
-Object.defineProperty(Screen, '_frame', {
-    get: function () {
-        var container = this._container;
-        return (container.parentNode === document.body) ? document.documentElement : container.parentNode;
-    }
-});
-
-/**
  * Size of parent node that contains container and _canvas
  * @property _frameSize
  * @type {Vec2}
  * @private
  */
-Object.defineProperty(Screen, '_frameSize', {
-    get: function () {
-        var frame = this._frame;
-        return Fire.v2(BrowserGetter.availWidth(frame), BrowserGetter.availHeight(frame));
-    }
+JS.get(Screen, '_frameSize', function () {
+    var container = Engine._renderContext.container;
+    var frame = (container.parentNode === document.body) ? document.documentElement : container.parentNode;
+    return Fire.v2(BrowserGetter.availWidth(frame), BrowserGetter.availHeight(frame));
 });
 
 //Object.defineProperty(Screen, 'resolutionPolicy', {
@@ -11618,7 +12257,7 @@ function ContainerStrategy () {}
  */
 ContainerStrategy.prototype.setupContainer = function (size) {
     var canvas = Fire.Engine._renderContext.canvas;
-    var container = Fire.Screen._container;
+    var container = Fire.Engine._renderContext.container;
 
     // Setup container
     container.style.width = canvas.style.width = size.x + 'px';
@@ -11913,8 +12552,8 @@ var Input = (function () {
      * !#zh 注册输入事件的回调方法。
      *
      * 请参考：
-     * - [获取用户输入](/zh/scripting/input)
-     * - [输入事件列表](/zh/scripting/input-events)
+     * - [获取用户输入](/manual/scripting/input)
+     * - [输入事件列表](/manual/scripting/input-events)
      *
      * @method on
      * @param {string} type - eg. "keydown", "click"
@@ -12648,27 +13287,45 @@ Fire.AudioSource = AudioSource;
     // The codes below is generated by script automatically:
     // 
 
+//// the director
+//Runtime.director = null;
+//
+//// the game
+//Runtime.game = null;
 
-(function () {
-    // Tweak PIXI
-    PIXI.dontSayHello = true;
-    var EMPTY_METHOD = function () {};
-    PIXI.DisplayObject.prototype.updateTransform = EMPTY_METHOD;
-    PIXI.DisplayObject.prototype.displayObjectUpdateTransform = EMPTY_METHOD;
-    PIXI.DisplayObjectContainer.prototype.displayObjectContainerUpdateTransform = EMPTY_METHOD;
-})();
+//Runtime.sceneNode = null;
+
+Runtime.init = function () {
+    //this.sceneNode = new cc.Scene();
+    //this.game = Engine._renderContext.game;
+    //this.director = this.game.director;
+};
+
+Color.prototype.toCCColor = function () {
+    return {
+        r: (this.r * 255) | 0,
+        g: (this.g * 255) | 0,
+        b: (this.b * 255) | 0,
+        a: (this.a * 255) | 0
+    };
+};
+
 
 /**
- * The web renderer implemented rely on pixi.js
+ * The render context implemented rely on cocos2d-js
  */
 var RenderContext = (function () {
 
     /**
-     * render context 将在 pixi 中维护同样的 scene graph，这样做主要是为之后的 clipping 和 culling 提供支持。
-     * 这里采用空间换时间的策略，所有 entity 都有对应的 PIXI.DisplayObjectContainer。
+     * render context 将在 cocos 中维护同样的 scene graph，这样做主要是为之后的 clipping 和 culling 提供支持。
+     * 这里采用空间换时间的策略，所有 entity 都有对应的 cc.Node。
      * 毕竟一般 dummy entity 不会很多，因此这样产生的冗余对象可以忽略。
-     * 值得注意的是，sprite 等 pixi object，被视为 entity 对应的 PIXI.DisplayObjectContainer 的子物体，
-     * 并且排列在所有 entity 之前，以达到最先渲染的效果。
+     * 值得注意的是，sprite 等节点，被视为 entity 对应的 cc.Node 的子物体。
+     *
+     * 渲染排序采用 localZOrder 来设置。sprite 等节点的值都为 -1，这样父 entity 本身就能最先渲染。
+     * 所有 node 的 localZOrder 都设置成和所属 entity 的 sibling index，localZOrder 在 entity 删除时并不进行更新，
+     * 因此新增 entity 时不能直接以父 entity 的 childrenCount 来计算新的 localZOrder。
+     * 另外，所有 scene node 的 localZOrder 和 game node 保持一致。
      *
      * @param {number} width
      * @param {number} height
@@ -12680,16 +13337,30 @@ var RenderContext = (function () {
         height = height || 600;
         transparent = transparent || false;
 
-        var antialias = false;
-        this.stage = new PIXI.Stage(0x000000);
-        this.stage.interactive = false;
+        var self = this;
 
-        this.root = this.stage;
-        this.renderer = PIXI.autoDetectRenderer(width, height, {
-            view: canvas,
-            transparent: transparent,
-            antialias: antialias
-        } );
+        this.game = new cc.Game({
+            "width": width,
+            "height": height,
+            "debugMode" : 1,
+            "showFPS" : false,
+            "frameRate" : 60,
+            "id" : canvas,
+            "renderMode" : 1,       // 0: WebGL, 1:Canvas
+            "jsList" : []
+        }, function () {
+            self.root = self.stage = new cc.Scene();
+            this.view.setResolutionPolicy( cc.ResolutionPolicy.SHOW_ALL );
+            this.director.runScene(self.stage);
+        });
+        this.game.run();
+        this.game.pause();
+        if (! emptyTexture) {
+            this.game.setEnvironment();
+            emptyTexture = new cc.SpriteFrame(new cc.Texture2D(), cc.rect());
+        }
+
+        var antialias = false;
 
         // the shared render context that allows display the object which marked as Fire._ObjectFlags.HideInGame
         this.sceneView = null;
@@ -12698,9 +13369,11 @@ var RenderContext = (function () {
 
         // binded camera, if supplied the scene will always rendered by this camera
         this._camera = null;
+
+        this.renderer = this.view = this.game.view;
     }
 
-    var emptyTexture = new PIXI.Texture(new PIXI.BaseTexture());
+    var emptyTexture = null;
 
     // static
 
@@ -12714,51 +13387,52 @@ var RenderContext = (function () {
 
     Object.defineProperty(RenderContext.prototype, 'canvas', {
         get: function () {
-            return this.renderer.view;
+            return this.game.canvas;
+        }
+    });
+
+    Object.defineProperty(RenderContext.prototype, 'container', {
+        get: function () {
+            return this.game.container;
         }
     });
 
     Object.defineProperty(RenderContext.prototype, 'width', {
         get: function () {
-            return this.renderer.width;
+            return this.size.x;
         },
         set: function (value) {
-            this.renderer.resize(value, this.renderer.height);
+            this.size = v2(value, this.height);
         }
     });
 
     Object.defineProperty(RenderContext.prototype, 'height', {
         get: function () {
-            return this.renderer.height;
+            return this.size.y;
         },
         set: function (value) {
-            this.renderer.resize(this.renderer.width, value);
+            this.size = v2(this.width, value);
         }
     });
 
     Object.defineProperty(RenderContext.prototype, 'size', {
         get: function () {
-            return new Vec2(this.renderer.width, this.renderer.height);
+            var winSize = this.game.director.getWinSize();
+            return new Vec2(winSize.width, winSize.height);
         },
         set: function (value) {
-            this.renderer.resize(value.x, value.y);
-            // DISABLE
-            // // auto resize scene view camera
-            // if (this._camera && (this._camera.entity._objFlags & Fire._ObjectFlags.EditorOnly)) {
-            //     this._camera.size = value.y;
-            // }
+            this.setDesignResolutionSize(value.x, value.y, this.game.view.getResolutionPolicy());
         }
     });
 
     Object.defineProperty(RenderContext.prototype, 'background', {
         set: function (value) {
-            this.stage.setBackgroundColor(value.toRGBValue());
+            this.view.setBackgroundColor(value.toCCColor());
         }
     });
 
     Object.defineProperty(RenderContext.prototype, 'camera', {
         get: function () {
-            //return (this._camera && this._camera.isValid) || null;
             return this._camera;
         },
         set: function (value) {
@@ -12771,113 +13445,89 @@ var RenderContext = (function () {
 
     // functions
 
+    RenderContext.prototype.onPreRender = function () {
+        this.game.setEnvironment();
+    };
+
     RenderContext.prototype.render = function () {
-        this.renderer.render(this.stage);
+        this.game.frameRun();
+    };
+
+    RenderContext.prototype.setDesignResolutionSize = function(width, height, policy) {
+        // Normal parent
+        var parent = this.game.container.parentNode;
+        if (!parent) {
+            // No parent
+            parent = this.game.container;
+        }
+        else {
+            // Shadow dom parent
+            if (parent.host) {
+                parent = parent.host;
+            }
+        }
+        this.view.setFrame(parent);
+        this.view.setDesignResolutionSize(width, height, policy);
     };
 
     RenderContext.prototype.onRootEntityCreated = function (entity) {
-        entity._pixiObj = this._createNode();
-    };
-
-    RenderContext.prototype._createNode = function () {
-        // always create pixi node even if is scene gizmo, to keep all their indices sync with transforms' sibling indices.
-        var node = new PIXI.DisplayObjectContainer();
+        this.game.setEnvironment();
+        var node = new cc.Node();
+        entity._ccNode = node;
+        node.setAnchorPoint(0, 1);
+        var z = 0;
         if (Engine._canModifyCurrentScene) {
+            this.game.setEnvironment();
             // attach node if created dynamically
             this.root.addChild(node);
+            z = setMaxZOrder(node, this.root);
         }
-        return node;
     };
 
     RenderContext.prototype.onEntityRemoved = function (entity) {
-        this._removeNode(entity._pixiObj);
-        entity._pixiObj = null;
-    };
-
-    RenderContext.prototype._removeNode = function (node) {
-        if (node && node.parent) {
-            node.parent.removeChild(node);
+        var node = entity._ccNode;
+        if (node) {
+            if (node.parent) {
+                this.game.setEnvironment();
+                node.parent.removeChild(node);
+            }
+            entity._ccNode = null;
         }
     };
 
     RenderContext.prototype.onEntityParentChanged = function (entity, oldParent) {
-        this._setParentNode(entity._pixiObj, entity._parent && entity._parent._pixiObj);
+        this._setParentNode(entity._ccNode, entity._parent && entity._parent._ccNode);
     };
+
+    // call after addChild
+    function setMaxZOrder (node, parent) {
+        var children = parent.getChildren();
+        var z = 0;
+        if (children.length >= 2) {
+            var prevNode = children[children.length - 2];
+            z = prevNode.getLocalZOrder() + 1;
+        }
+        node.setLocalZOrder(z);
+        return z;
+    }
 
     RenderContext.prototype._setParentNode = function (node, parent) {
         if (node) {
-            if (parent) {
-                parent.addChild(node);
-            }
-            else {
-                this.root.addChild(node);
-            }
-        }
-    };
-
-    /**
-     * @param {Entity} entityParent
-     * @param {Entity} [customFirstChildEntity=null]
-     * @return {number}
-     */
-    RenderContext.prototype._getChildrenOffset = function (entityParent, customFirstChildEntity) {
-        if (entityParent) {
-            var pixiParent = this.isSceneView ? entityParent._pixiObjInScene : entityParent._pixiObj;
-            var firstChildEntity = customFirstChildEntity || entityParent._children[0];
-            if (firstChildEntity) {
-                var firstChildPixi = this.isSceneView ? firstChildEntity._pixiObjInScene : firstChildEntity._pixiObj;
-                var offset = pixiParent.children.indexOf(firstChildPixi);
-                if (offset !== -1) {
-                    return offset;
-                }
-                else if (customFirstChildEntity) {
-                    return pixiParent.children.length;
-                }
-                else {
-                    Fire.error("%s's pixi object not contains in its pixi parent's children", firstChildEntity.name);
-                    return -1;
-                }
-            }
-            else {
-                return pixiParent.children.length;
-            }
-        }
-        else {
-            return 0;   // the root of hierarchy
+            this.game.setEnvironment();
+            node.removeFromParent();
+            parent = parent || this.root;
+            parent.addChild(node);
+            setMaxZOrder(node, parent);
         }
     };
 
     RenderContext.prototype.onEntityIndexChanged = function (entity, oldIndex, newIndex) {
-        var lastFirstSibling;
-        if (newIndex === 0 && oldIndex > 0) {
-            // insert to first
-            lastFirstSibling = entity.getSibling(1);
-        }
-        else if (oldIndex === 0 && newIndex > 0) {
-            // move first to elsewhere
-            lastFirstSibling = entity;
-        }
-
-        if (entity._pixiObj) {
-            this._setNodeIndex(entity, oldIndex, newIndex, lastFirstSibling);
-        }
-    };
-
-    RenderContext.prototype._setNodeIndex = function (entity, oldIndex, newIndex, lastFirstSibling) {
-        // skip renderers of entity
-        var siblingOffset = this._getChildrenOffset(entity._parent, lastFirstSibling);
-        //
-        var node = this.isSceneView ? entity._pixiObjInScene : entity._pixiObj;
-        if (node) {
-            var array = node.parent.children;
-            array.splice(oldIndex + siblingOffset, 1);
-            var newPixiIndex = newIndex + siblingOffset;
-            if (newPixiIndex < array.length) {
-                array.splice(newPixiIndex, 0, node);
-            }
-            else {
-                array.push(node);
-            }
+        var siblings = entity._parent ? entity._parent._children : Engine._scene.entities;
+        this.game.setEnvironment();
+        var i = 0, len = siblings.length, sibling = null;
+        for (; i < len; i++) {
+            sibling = siblings[i];
+            sibling._ccNode.setLocalZOrder(i);
         }
     };
 
@@ -12887,16 +13537,23 @@ var RenderContext = (function () {
     };
 
     RenderContext.prototype._addToScene = function (scene) {
+        this.game.setEnvironment();
         var entities = scene.entities;
-        for (var i = 0, len = entities.length; i < len; i++) {
-            var node = this.isSceneView? entities[i]._pixiObjInScene : entities[i]._pixiObj;
+        var i = 0, len = entities.length;
+        for (; i < len; i++) {
+            var node = this.isSceneView ? entities[i]._ccNodeInScene : entities[i]._ccNode;
             if (node) {
-                this.root.addChild(node);
+                //node.removeFromParent();
+                if (! node.getParent()) {
+                    this.root.addChild(node);
+                }
+                node.setLocalZOrder(i);
             }
         }
     };
 
     RenderContext.prototype.onSceneLoaded = function (scene) {
+        this.game.setEnvironment();
         var entities = scene.entities;
         for (var i = 0, len = entities.length; i < len; i++) {
             this.onEntityCreated(entities[i], false);
@@ -12908,43 +13565,55 @@ var RenderContext = (function () {
      * 这个方法假定parent存在
      * @param {Entity} entity - must have parent, and not scene gizmo
      */
-    var _onChildEntityCreated = function (entity, hasSceneView) {
-        entity._pixiObj = new PIXI.DisplayObjectContainer();
-        entity._parent._pixiObj.addChild(entity._pixiObj);
+    RenderContext.prototype._onChildEntityCreated = function (entity) {
+        this.game.setEnvironment();
+        var node = new cc.Node();
+        entity._ccNode = node;
+        node.setAnchorPoint(0, 1);
+        entity._parent._ccNode.addChild(node);
+        var z = setMaxZOrder(node, entity._parent._ccNode);
         var children = entity._children;
         for (var i = 0, len = children.length; i < len; i++) {
-            _onChildEntityCreated(children[i], hasSceneView);
+            this._onChildEntityCreated(children[i]);
         }
     };
 
     RenderContext.prototype.onEntityCreated = function (entity, addToScene) {
-        entity._pixiObj = new PIXI.DisplayObjectContainer();
+        var z = 0;
+        this.game.setEnvironment();
+        var node = new cc.Node();
+        entity._ccNode = node;
+        node.setAnchorPoint(0, 1);
         if (entity._parent) {
-            entity._parent._pixiObj.addChild(entity._pixiObj);
+            entity._parent._ccNode.addChild(node);
+            z = setMaxZOrder(node, entity._parent._ccNode);
         }
         else if (addToScene) {
-            this.root.addChild(entity._pixiObj);
+            this.root.addChild(node);
+            z = setMaxZOrder(node, this.root);
         }
         var children = entity._children;
         for (var i = 0, len = children.length; i < len; i++) {
-            _onChildEntityCreated(children[i], this.sceneView);
+            this._onChildEntityCreated(children[i]);
         }
     };
 
     RenderContext.prototype._addSprite = function (tex, parentNode) {
-        var sprite = new PIXI.Sprite(tex);
-        parentNode.addChildAt(sprite, 0);
+        this.game.setEnvironment();
+        var sprite = new cc.Sprite(tex);
+        sprite.setAnchorPoint(0, 1);
+        parentNode.addChild(sprite, 0);
+        sprite.setLocalZOrder(-1);
         return sprite;
     };
 
     RenderContext.prototype.addSprite = function (target) {
-        var tex = createTexture(target._sprite);
-
+        var tex = this.createTexture(target._sprite);
         var inGame = !(target.entity._objFlags & HideInGame);
         if (inGame) {
-            target._renderObj = this._addSprite(tex, target.entity._pixiObj);
+            target._renderObj = this._addSprite(tex, target.entity._ccNode);
         }
-        this.updateSpriteColor(target);
+        this.updateColor(target);
     };
 
     RenderContext.prototype.show = function (target, show) {
@@ -12957,130 +13626,126 @@ var RenderContext = (function () {
     };
 
     RenderContext.prototype.remove = function (target) {
-        this._removeNode(target._renderObj);
-        target._renderObj = null;
+        if (target._renderObj) {
+            if (target._renderObj && target._renderObj.parent) {
+                this.game.setEnvironment();
+                target._renderObj.parent.removeChild(target._renderObj);
+            }
+            target._renderObj = null;
+        }
     };
 
-    RenderContext.prototype.updateSpriteColor = function (target) {
-        var tint = target._color.toRGBValue();
+    RenderContext.prototype.updateColor = function (target) {
+        var tint = target._color.toCCColor();
         if (target._renderObj) {
-            target._renderObj.tint = tint;
+            this.game.setEnvironment();
+            target._renderObj.setColor(tint);
+            target._renderObj.setOpacity(target._color.a * 255);
         }
     };
 
     RenderContext.prototype.updateMaterial = function (target) {
-        var tex = createTexture(target._sprite);
+        var tex = this.createTexture(target._sprite);
         if (target._renderObj) {
-            target._renderObj.setTexture(tex);
+            this.game.setEnvironment();
+            target._renderObj.setSpriteFrame(tex);
         }
     };
 
     RenderContext.prototype.updateTransform = function (target, matrix) {
-        // caculate matrix for pixi
-        var mat = target._tempMatrix;
-        mat.a = matrix.a;
-        // negate the rotation because our rotation transform not the same with pixi
-        mat.b = - matrix.b;
-        mat.c = - matrix.c;
-        //
-        mat.d = matrix.d;
-        mat.tx = matrix.tx;
-        // revert Y axis for pixi
-        mat.ty = this.renderer.height - matrix.ty;
+        var node;
+        node = target._renderObj;
+        if (node) {
+            var trs = matrix.getTRS();
+            node.setPosition(matrix.tx, matrix.ty);
 
-        var worldAlpha = Math.clamp01(target._color.a);
-
-        // apply matrix
-        if ( !this.isSceneView ) {
-            if (target._renderObj) {
-                target._renderObj.worldTransform = mat;
-                target._renderObj.worldAlpha = worldAlpha;
+            var rot = trs.rotation * Math.R2D;
+            // negate the rotation because our rotation transform not the same with cocos
+            rot = -rot;
+            if (node._rotationX !== rot) {
+                node.setRotation(rot);
             }
+
+            var scale = trs.scale;
+            if (node._scaleX !== scale.x || node._scaleY !== scale.y) {
+                node.setScale(scale.x, scale.y);
+            }
+
+            //var alpha = target._color.a * 255;
+            //if (node._realOpacity !== alpha) {
+            //    node.setOpacity(alpha);
+            //}
         }
     };
-
-    ///**
-    // * @param {SpriteRenderer} target
-    // * @param {SpriteRenderer} transform
-    // * @param {SpriteRenderer} oldParent
-    // */
-    //RenderContext.prototype.updateHierarchy = function (target, transform, oldParent) {
-    //    if (target._renderObj || target._renderObjInScene) {
-    //        if (transform._parent === oldParent) {
-    //            // oldAncestor changed its sibling index
-    //            if (target._renderObj) {
-    //                this._updateSiblingIndex(transform);
-    //            }
-    //            if (target._renderObjInScene) {
-    //                this.sceneView._updateSiblingIndex(transform);
-    //            }
-    //            return true;
-    //        }
-    //        else {
-    //            // parent changed
-    //        }
-    //    }
-    //    else {
-    //        Fire.error('' + target + ' must be added to render context first!');
-    //    }
-    //    return false;
-    //};
-
-    //RenderContext.prototype._updateSiblingIndex = function (transform) {
-    //    var pixiNode = this._pixiObjects[transform.id];
-    //    var array = pixiNode.parent.children;
-    //    var oldIndex = array.indexOf(pixiNode);
-    //    var newIndex = transform.getSiblingIndex(); // 如果前面的节点包含空的entity，则这个new index会有问题
-    //    // skip entities not exists in pixi
-    //    while ((--newIndex) > 0) {
-    //        var previous = transform.getSibling(newIndex);
-    //        if (previous.id) {
-    //        }
-    //    }
-    //    array.splice(oldIndex, 1);
-    //    if (newIndex < array.length) {
-    //        array.splice(newIndex, 0, pixiNode);
-    //    }
-    //    else {
-    //        array.push(pixiNode);
-    //    }
-    //};
 
     /**
      * @param sprite {Sprite}
      */
-    function createTexture(sprite) {
+    RenderContext.prototype.createTexture = function (sprite) {
         if (sprite && sprite.texture && sprite.texture.image) {
-            var img = new PIXI.BaseTexture(sprite.texture.image);
-            var frame = new PIXI.Rectangle(sprite.x, sprite.y, Math.min(img.width - sprite.x, sprite.rotatedWidth), Math.min(img.height - sprite.y, sprite.rotatedHeight));
-            return new PIXI.Texture(img, frame);
+            //this.game.setEnvironment();
+            var key = sprite.texture._uuid || sprite.texture.id;
+            var img = cc.textureCache.addUIImage(sprite.texture.image, key);
+            var frame = cc.rect(sprite.x, sprite.y, Math.min(img.width - sprite.x, sprite.width), Math.min(img.height - sprite.y, sprite.height));
+            return new cc.SpriteFrame(img, frame);
         }
         else {
             return emptyTexture;
         }
-    }
+    };
 
     return RenderContext;
 })();
 
+/**
+ * @param {Entity} entityParent
+ * @param {Entity} [customFirstChildEntity=null]
+ * @return {number}
+ */
+RenderContext.prototype._getChildrenOffset = function (entityParent, customFirstChildEntity) {
+    if (entityParent) {
+        var cocosParent = this.inSceneView ? entityParent._ccNodeInScene : entityParent._ccNode;
+        var firstChildEntity = customFirstChildEntity || entityParent._children[0];
+        if (firstChildEntity) {
+            var firstChildCocos = this.inSceneView ? firstChildEntity._ccNodeInScene : firstChildEntity._ccNode;
+            var offset = cocosParent.children.indexOf(firstChildCocos);
+            if (offset !== -1) {
+                return offset;
+            }
+            else if (customFirstChildEntity) {
+                return cocosParent.children.length;
+            }
+            else {
+                Fire.error("%s's cocos object not contains in its cocos parent's children", firstChildEntity.name);
+                return -1;
+            }
+        }
+        else {
+            return cocosParent.children.length;
+        }
+    }
+    else {
+        return 0;   // the root of hierarchy
+    }
+};
 RenderContext.prototype.checkMatchCurrentScene = function () {
     var entities = Engine._scene.entities;
-    var pixiGameNodes = this.stage.children;
-    var pixiSceneNodes;
+    var cocosGameNodes = this.stage.children;
+    var cocosSceneNodes;
     if (this.sceneView) {
-        pixiSceneNodes = this.sceneView.stage.children;
-        pixiSceneNodes = pixiSceneNodes[1].children;    // skip foreground and background
+        cocosSceneNodes = this.sceneView.stage.children;
+        cocosSceneNodes = cocosSceneNodes[1].children;    // skip foreground and background
     }
     var scope = this;
     function checkMatch (ent, gameNode, sceneNode) {
-        if (sceneNode && ent._pixiObjInScene !== sceneNode) {
-            throw new Error('entity does not match pixi scene node: ' + ent.name);
+        if (sceneNode && ent._ccNodeInScene !== sceneNode) {
+            throw new Error('entity does not match cocos scene node: ' + ent.name);
         }
         //if (!(ent._objFlags & HideInGame)) {
         //    var gameNode = gameNodes[g++];
         //}
-        if (ent._pixiObj !== gameNode) {
-            throw new Error('entity does not match pixi game node: ' + ent.name);
+        if (ent._ccNode !== gameNode) {
+            throw new Error('entity does not match cocos game node: ' + ent.name);
         }
 
         var childCount = ent._children.length;
@@ -13089,7 +13754,7 @@ RenderContext.prototype.checkMatchCurrentScene = function () {
             sceneChildrenOffset = scope.sceneView._getChildrenOffset(ent);
             if (sceneNode.children.length !== childCount + sceneChildrenOffset) {
                 console.error('Mismatched list of child elements in Scene view, entity: %s,\n' +
-                    'pixi childCount: %s, entity childCount: %s, rcOffset: %s',
+                    'cocos childCount: %s, entity childCount: %s, rcOffset: %s',
                     ent.name, sceneNode.children.length, childCount, sceneChildrenOffset);
                 throw new Error('(see above error)');
             }
@@ -13104,341 +13769,210 @@ RenderContext.prototype.checkMatchCurrentScene = function () {
     }
 
     for (var i = 0; i < entities.length; i++) {
-        if (pixiSceneNodes && pixiSceneNodes.length !== entities.length) {
+        if (cocosSceneNodes && cocosSceneNodes.length !== entities.length) {
             throw new Error('Mismatched list of root elements in scene view');
         }
-        if (pixiGameNodes.length !== entities.length) {
+        if (cocosGameNodes.length !== entities.length) {
             throw new Error('Mismatched list of root elements in game view');
         }
-        checkMatch(entities[i], pixiGameNodes[i], pixiSceneNodes && pixiSceneNodes[i]);
-    }
-
-    //if (g !== pixiGameNodes.length) {
-    //    Fire.error('pixi has extra game node, pixi count: ' + pixiGameNodes.length + ' expected count: ' + g);
-    //    return false;
-    //}
-    // 目前不测试renderer
-};
-Fire._Runtime.RenderContext = RenderContext;
-
-PIXI.BitmapText.prototype.updateTransform = function () {
-};
-
-// unload asset
-Fire.BitmapFont.prototype._onPreDestroy = function () {
-    if (this._uuid) {
-        PIXI.BitmapText.fonts[this._uuid] = null;
+        checkMatch(entities[i], cocosGameNodes[i], cocosSceneNodes && cocosSceneNodes[i]);
     }
 };
+Runtime.RenderContext = RenderContext;
 
-var defaultFace = "None";
-
-function _getStyle (target) {
-    if (target.bitmapFont && target.bitmapFont._uuid) {
-        return {
-            font : target.bitmapFont.size + " " + target.bitmapFont._uuid,
-            align: Fire.TextAlign[target.align].toLowerCase(),
+var _getBitmapFontInfo = function (target) {
+    var bitmapFont = target.bitmapFont;
+    if (!bitmapFont) {
+        return;
+    }
+    var info = {};
+    info.alignment = target.align;
+    info.imageOffset = null;
+    info.width = null;
+    info.image = bitmapFont.texture.image;
+    info.config = {
+        commonHeight: bitmapFont.lineHeight,
+        atlasName: bitmapFont.atlasName
+    };
+    //char
+    var fontDefDictionary = info.config.fontDefDictionary = {};
+    var charInfos = bitmapFont.charInfos, len = charInfos.length;
+    for (var i = 0; i < len; i++) {
+        var charInfo = charInfos[i];
+        var id = charInfo.id;
+        fontDefDictionary[id] = {
+            rect: { x: charInfo.x, y: charInfo.y, width: charInfo.width, height: charInfo.height },
+            xOffset: charInfo.xOffset,
+            yOffset : charInfo.yOffset,
+            xAdvance: charInfo.xAdvance
         };
     }
-    else {
-        return {
-            font : 1 + " " + defaultFace,
-            align: "left",
-        };
+    // kerning
+    var kerningDict = info.config.kerningDict = {};
+    var kernings = bitmapFont.kernings;
+    len = kernings.length;
+    for (var j = 0; j < len; j++) {
+        var kerning = kernings[j];
+        kerningDict[kerning.first | (kerning.second & 0xffff)] = kerning.amount;
     }
-}
-
-function _setStyle (target) {
-    var style = _getStyle(target);
-    if (target._renderObj) {
-        target._renderObj.setStyle(style);
-    }
-    if (target._renderObjInScene) {
-        target._renderObjInScene.setStyle(style);
-    }
-}
-
-function _getNewMatrix23 (child, tempMatrix) {
-    var mat = new Fire.Matrix23();
-    mat.a = child.scale.x;
-    mat.b = 0;
-    mat.c = 0;
-    mat.d = child.scale.y;
-    mat.tx = child.position.x;
-    mat.ty = -child.position.y;
-
-    mat.prepend(tempMatrix);
-
-    mat.b = -mat.b;
-    mat.c = -mat.c;
-    mat.ty = Fire.Engine._curRenderContext.renderer.height - mat.ty;
-    return mat;
-}
-var tempData = {
-    face      : defaultFace,
-    size      : 1,
-    chars     : {},
-    lineHeight: 1
+    return info;
 };
 
-function _registerFont (bitmapFont) {
-
-    //var registered = _hasPixiBitmapFont(bitmapFont);
-    //if (registered) {
-    //    return;
-    //}
-
-    var data = {};
-    if (bitmapFont && bitmapFont._uuid) {
-        data.face = bitmapFont._uuid;
-        data.size = bitmapFont.size;
-        data.lineHeight = bitmapFont.lineHeight;
-        data.chars = {};
-
-        if (bitmapFont.texture) {
-            var img = new PIXI.BaseTexture(bitmapFont.texture.image);
-
-            var charInfos = bitmapFont.charInfos, len = charInfos.length;
-            for (var i = 0; i < len; i++) {
-                var charInfo = charInfos[i];
-                var id = charInfo.id;
-                var textureRect = new PIXI.Rectangle(
-                    charInfo.x,
-                    charInfo.y,
-                    charInfo.width,
-                    charInfo.height
-                );
-
-                if ((textureRect.x + textureRect.width) > img.width || (textureRect.y + textureRect.height) > img.height) {
-                    Fire.error('Character in %s does not fit inside the dimensions of texture %s', bitmapFont.name, bitmapFont.texture.name);
-                    break;
-                }
-
-                var texture = new PIXI.Texture(img, textureRect);
-
-                data.chars[id] = {
-                    xOffset : charInfo.xOffset,
-                    yOffset : charInfo.yOffset,
-                    xAdvance: charInfo.xAdvance,
-                    kerning : {},
-                    texture : texture
-                };
-            }
-        }
-        else {
-            Fire.error('Invalid texture of bitmapFont: %s', bitmapFont.name);
-        }
-
-        var kernings = bitmapFont.kernings;
-        for (var j = 0; j < kernings.length; j++) {
-            var kerning = kernings[j];
-            var first = kerning.first;
-            var second = kerning.second;
-            var amount = kerning.amount;
-            data.chars[second].kerning[first] = amount;
-        }
+cc.LabelBMFont.prototype.initWithString = function (str, info) {
+    if (!info) {
+        return false;
     }
-    else {
-        data = tempData;
-    }
-    PIXI.BitmapText.fonts[data.face] = data;
-}
+    var self = this;
+    var text = str || "";
 
-var _hasPixiBitmapFont = function (bitmapFont) {
-    if (bitmapFont) {
-        return PIXI.BitmapText.fonts[bitmapFont._uuid];
+    self._config = info.config;
+    var texture = new cc.Texture2D();
+    texture.initWithElement(info.image);
+    self._textureLoaded = true;
+
+    if (self.initWithTexture(texture, text.length)) {
+        self._alignment = info.alignment || cc.TEXT_ALIGNMENT_LEFT;
+        self._imageOffset = info.imageOffset || cc.p(0, 0);
+        self._width = (info.width === null) ? -1 : info.width;
+
+        self._realOpacity = 255;
+        self._realColor = cc.color(255, 255, 255, 255);
+
+        self._contentSize.width = 0;
+        self._contentSize.height = 0;
+
+        self.setAnchorPoint(0, 1);
+
+        this._renderCmd._initBatchTexture();
+
+        self.setString(text, true);
+        return true;
     }
-    return null;
+    return false;
 };
 
 RenderContext.prototype.getTextSize = function (target) {
     var inGame = !(target.entity._objFlags & HideInGame);
     var w = 0, h = 0;
     if (inGame && target._renderObj) {
-        if (target._renderObj.dirty) {
-            target._renderObj.updateText();
-            target._renderObj.dirty = false;
-        }
+        w = target._renderObj.width;
+        h = target._renderObj.height;
 
-        w = target._renderObj.textWidth;
-        h = target._renderObj.textHeight;
-    }
-    else if (target._renderObjInScene) {
-        if (target._renderObjInScene.dirty) {
-            target._renderObjInScene.updateText();
-            target._renderObjInScene.dirty = false;
-        }
-
-        w = target._renderObjInScene.textWidth;
-        h = target._renderObjInScene.textHeight;
     }
     return new Vec2(w, h);
 };
 
 RenderContext.prototype.setText = function (target, newText) {
     if (target._renderObj) {
-        target._renderObj.setText(newText);
-    }
-    if (this.sceneView && target._renderObjInScene) {
-        target._renderObjInScene.setText(newText);
+        this.game.setEnvironment();
+        target._renderObj.setString(newText);
     }
 };
 
 RenderContext.prototype.setAlign = function (target) {
-    _setStyle(target);
+    if (target._renderObj) {
+        this.game.setEnvironment();
+        target._renderObj.setAlignment(target.align);
+    }
 };
 
 RenderContext.prototype.updateBitmapFont = function (target) {
-    _registerFont(target.bitmapFont);
-    _setStyle(target);
+    this.remove(target);
+    this.addBitmapText(target);
 };
 
 RenderContext.prototype.addBitmapText = function (target) {
-    _registerFont(target.bitmapFont);
-
-    var style = _getStyle(target);
-
+    var info = _getBitmapFontInfo(target);
+    if (!info){
+        return;
+    }
+    var node;
     var inGame = !(target.entity._objFlags & HideInGame);
     if (inGame) {
-        target._renderObj = new PIXI.BitmapText(target.text, style);
-        target.entity._pixiObj.addChildAt(target._renderObj, 0);
-    }
-    if (this.sceneView) {
-        target._renderObjInScene = new PIXI.BitmapText(target.text, style);
-        target.entity._pixiObjInScene.addChildAt(target._renderObjInScene, 0);
-    }
-};
-
-RenderContext.updateBitmapTextTransform = function (target, tempMatrix) {
-    var i = 0, childrens = null, len = 0, child = null;
-    var isGameView = Engine._curRenderContext === Engine._renderContext;
-    if (isGameView && target._renderObj) {
-        if (target._renderObj.dirty) {
-            target._renderObj.updateText();
-            target._renderObj.dirty = false;
-        }
-        childrens = target._renderObj.children;
-        for (len = childrens.length; i < len; i++) {
-            child = childrens[i];
-            child.worldTransform = _getNewMatrix23(child, tempMatrix);
-        }
-    }
-    else if (target._renderObjInScene) {
-        if (target._renderObjInScene.dirty) {
-            target._renderObjInScene.updateText();
-            target._renderObjInScene.dirty = false;
-        }
-        childrens = target._renderObjInScene.children;
-        for (i = 0, len = childrens.length; i < len; i++) {
-            child = childrens[i];
-            child.worldTransform = _getNewMatrix23(child, tempMatrix);
-        }
+        this.game.setEnvironment();
+        node = new cc.LabelBMFont(target.text, info);
+        target._renderObj = node;
+        target.entity._ccNode.addChild(node);
+        node.setLocalZOrder(-1);
     }
 };
 
-PIXI.Text.prototype.updateTransform = function () {
-};
+RenderContext.prototype.updateBitmapTextTransform = RenderContext.prototype.updateTransform;
 
-var PixiTextUtil = {};
-
-function _getTextStyle (target) {
+function _getTextInfo (target) {
     if (target) {
-        var style = {
-            fill : "#" + target.color.toHEX('#rrggbb'),
-            align: Fire.TextAlign[target.align].toLowerCase()
-        };
+        var info = {};
         if (target.fontType !== Fire.Text.FontType.Custom){
-            style.font = target.size + "px" + " " + Fire.Text.FontType[target.fontType].toLowerCase();
+            info.fontName = Fire.Text.FontType[target.fontType].toLowerCase();
         }
         else{
-            style.font = target.size + "px" + " " + target.customFontType;
+            info.fontName = target.customFontType;
         }
-        return style;
+        info.fontSize = target.size;
+        info.dimensions = null;
+        info.hAlignment = target.align;
+        info.vAlignment = null;
+
+        info.fillColor = target.color.toCCColor();
+        return info;
     }
-    else {
-        return {
-            font : "30px Arial",
-            fill : "white",
-            align: "left"
-        };
-    }
+    return null;
+};
+
+var _updateTextStyle = function (target, node) {
+    var info = _getTextInfo(target);
+    node.setFontName(info.fontName);
+    node.setFontSize(info.fontSize);
+    node.color = info.fillColor;
+    node.setOpacity(target.color.a * 255);
+    node.setHorizontalAlignment(info.hAlignment);
 }
+
+RenderContext.prototype.setTextStyle = function (target) {
+    if (target._renderObj) {
+        this.game.setEnvironment();
+        _updateTextStyle(target, target._renderObj);
+    }
+};
 
 RenderContext.prototype.setTextContent = function (target, newText) {
     if (target._renderObj) {
-        target._renderObj.setText(newText);
-    }
-    if (this.sceneView && target._renderObjInScene) {
-        target._renderObjInScene.setText(newText);
-    }
-};
-
-RenderContext.prototype.setTextStyle = function (target) {
-    var style = _getTextStyle(target);
-    if (target._renderObj) {
-        target._renderObj.setStyle(style);
-    }
-    if (target._renderObjInScene) {
-        target._renderObjInScene.setStyle(style);
+        this.game.setEnvironment();
+        target._renderObj.setString(newText);
     }
 };
 
 RenderContext.prototype.addText = function (target) {
-    var style = _getTextStyle(target);
-
+    var info = _getTextInfo(target);
+    if (!info){
+        return;
+    }
+    var node;
     var inGame = !(target.entity._objFlags & HideInGame);
     if (inGame) {
-        target._renderObj = new PIXI.Text(target.text, style);
-        target.entity._pixiObj.addChildAt(target._renderObj, 0);
+        this.game.setEnvironment();
+        node = new cc.LabelTTF(target.text);
+        node.setAnchorPoint(0, 1);
+        target._renderObj = node;
+        target.entity._ccNode.addChild(node);
     }
-    if (this.sceneView) {
-        target._renderObjInScene = new PIXI.Text(target.text, style);
-        target.entity._pixiObjInScene.addChildAt(target._renderObjInScene, 0);
+    if (node) {
+        this.setTextStyle(target);
+        node.setLocalZOrder(-1);
     }
 };
 
 RenderContext.prototype.getTextSize = function (target) {
     var inGame = !(target.entity._objFlags & HideInGame);
-    var w = 0, h = 0;
+    var size = null;
     if (inGame && target._renderObj) {
-        if (target._renderObj.dirty) {
-            target._renderObj.updateText();
-            target._renderObj.dirty = false;
-        }
-
-        w = target._renderObj.textWidth | target._renderObj._width;
-        h = target._renderObj.textHeight | target._renderObj._height;
+        size = target._renderObj.getContentSize();
     }
-    else if (target._renderObjInScene) {
-        if (target._renderObjInScene.dirty) {
-            target._renderObjInScene.updateText();
-            target._renderObjInScene.dirty = false;
-        }
-
-        w = target._renderObjInScene.textWidth | target._renderObjInScene._width;
-        h = target._renderObjInScene.textHeight | target._renderObjInScene._height;
-    }
-    return new Vec2(w, h);
+    return size ? new Vec2(size.width, size.height) : Vec2.zero;
 };
 
-RenderContext.updateTextTransform = function (target, tempMatrix) {
-    var i = 0, childrens = null, len = 0, child = null;
-    var isGameView = Engine._curRenderContext === Engine._renderContext;
-    if (isGameView && target._renderObj) {
-        if (target._renderObj.dirty) {
-            target._renderObj.updateText();
-            target._renderObj.dirty = false;
-        }
-        target._renderObj.worldTransform = _getNewMatrix23(target._renderObj, tempMatrix);
-    }
-    else if (target._renderObjInScene) {
-        if (target._renderObjInScene.dirty) {
-            target._renderObjInScene.updateText();
-            target._renderObjInScene.dirty = false;
-        }
-        target._renderObjInScene.worldTransform = _getNewMatrix23(target._renderObjInScene, tempMatrix);
-    }
-};
+RenderContext.prototype.updateTextTransform = RenderContext.prototype.updateTransform;
+
 
     // end of generated codes
 

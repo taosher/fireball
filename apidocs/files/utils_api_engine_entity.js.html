@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.3.0</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -45,6 +45,7 @@
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
                             <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
+                            <li><a class="type" href="../classes/AssetBundleBase.html">AssetBundleBase</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
@@ -77,8 +78,11 @@
                             <li><a class="type" href="../classes/MouseEvent.html">MouseEvent</a></li>
                             <li><a class="type" href="../classes/NoScale.html">NoScale</a></li>
                             <li><a class="type" href="../classes/Path.html">Path</a></li>
+                            <li><a class="type" href="../classes/Playable.html">Playable</a></li>
                             <li><a class="type" href="../classes/Rect.html">Rect</a></li>
                             <li><a class="type" href="../classes/Renderer.html">Renderer</a></li>
+                            <li><a class="type" href="../classes/Resources.html">Resources</a></li>
+                            <li><a class="type" href="../classes/ResourcesBundle.html">ResourcesBundle</a></li>
                             <li><a class="type" href="../classes/Screen.html">Screen</a></li>
                             <li><a class="type" href="../classes/Screen.ContainerStrategy.html">Screen.ContainerStrategy</a></li>
                             <li><a class="type" href="../classes/Screen.ContentStrategy.html">Screen.ContentStrategy</a></li>
@@ -131,9 +135,14 @@
                 
                     constructor: function () {
                         var name = arguments[0];
-                
                         this._name = typeof name !== &#x27;undefined&#x27; ? name : &#x27;New Entity&#x27;;
-                        this._objFlags |= Entity._defaultFlags;
+                
+                // @ifdef EDITOR
+                        var editorOptions = arguments[1];
+                        if (editorOptions) {
+                            this._objFlags |= editorOptions.flags;
+                        }
+                // @endif
                 
                         if (Fire._isCloning) {
                             // create by deserializer or instantiating
@@ -163,12 +172,8 @@
                                 transform._onEntityActivated(true);     // 因为是刚刚创建，所以 activeInHierarchy 肯定为 true
                 
                 // @ifdef EDITOR
-                                if (editorCallback.onEntityCreated) {
-                                    editorCallback.onEntityCreated(this);
-                                }
-                                if (editorCallback.onComponentAdded) {
-                                    editorCallback.onComponentAdded(this, transform);
-                                }
+                                editorCallback.onEntityCreated(this, editorOptions);
+                                editorCallback.onComponentAdded(this, transform);
                 // @endif
                             }
                         }
@@ -183,9 +188,7 @@
                             set: function (value) {
                                 this._name = value;
                                 // @ifdef EDITOR
-                                if (editorCallback.onEntityRenamed) {
-                                    editorCallback.onEntityRenamed(this);
-                                }
+                                editorCallback.onEntityRenamed(this);
                                 // @endif
                             }
                         },
@@ -288,9 +291,7 @@
                                     }
                                     Engine._renderContext.onEntityParentChanged(this, oldParent);
                 // @ifdef EDITOR
-                                    if (editorCallback.onEntityParentChanged) {
-                                        editorCallback.onEntityParentChanged(this);
-                                    }
+                                    editorCallback.onEntityParentChanged(this);
                 // @endif
                                     //this._onHierarchyChanged(this, oldParent);
                                 }
@@ -373,9 +374,7 @@
                         if (isTopMost) {
                             Engine._renderContext.onEntityRemoved(this);
                 // @ifdef EDITOR
-                            if (editorCallback.onEntityRemoved) {
-                                editorCallback.onEntityRemoved(this/*, isTopMost*/);
-                            }
+                            editorCallback.onEntityRemoved(this/*, isTopMost*/);
                 // @endif
                         }
                         // destroy components
@@ -471,9 +470,7 @@
                         }
                 
                 // @ifdef EDITOR
-                        if (editorCallback.onComponentAdded) {
-                            editorCallback.onComponentAdded(this, component);
-                        }
+                        editorCallback.onComponentAdded(this, component);
                 // @endif
                         return component;
                     },
@@ -520,9 +517,7 @@
                                 this._components.splice(i, 1);
                                 component.entity = null;
                 // @ifdef EDITOR
-                                if (editorCallback.onComponentRemoved) {
-                                    editorCallback.onComponentRemoved(this, component);
-                                }
+                                editorCallback.onComponentRemoved(this, component);
                 // @endif
                             }
                             else if (component.entity !== this) {
@@ -683,9 +678,7 @@
                             // callback
                             Engine._renderContext.onEntityIndexChanged(this, oldIndex, index);
                 // @ifdef EDITOR
-                            if (editorCallback.onEntityIndexChanged) {
-                                editorCallback.onEntityIndexChanged(this, oldIndex, index);
-                            }
+                            editorCallback.onEntityIndexChanged(this, oldIndex, index);
                 // @endif
                             //this._onHierarchyChanged(this, this.parent);
                         }
@@ -709,6 +702,58 @@
                         this.setSiblingIndex(-1);
                     },
                 
+                    /**
+                     * Tests whether the entity intersects the specified point in world coordinates
+                     * This ignores the alpha of the renderer.
+                     *
+                     * @method hitTest
+                     * @param {number} worldX The world X position to check.
+                     * @param {number} worldY The world Y position to check.
+                     * @return {boolean} A Boolean indicating whether the Entity intersect the specified world position.
+                     */
+                    hitTest: function (worldX, worldY) {
+                        var renderer = this.getComponent(Fire.SpriteRenderer);
+                        if (! renderer || ! renderer.sprite) {
+                            return false;
+                        }
+                
+                        var worldMatrix = this.transform.getLocalToWorldMatrix();
+                        var spriteMatrix = new Fire.Matrix23();
+                        renderer.getSelfMatrix(spriteMatrix);
+                        // TODO getSelfRenderMatrix
+                        spriteMatrix.a = renderer.width / renderer.sprite.width;
+                        spriteMatrix.d = renderer.height / renderer.sprite.height;
+                        if (renderer.sprite.rotated) {
+                            spriteMatrix.b = spriteMatrix.d;
+                            spriteMatrix.c = -spriteMatrix.a;
+                            spriteMatrix.a = 0;
+                            spriteMatrix.d = 0;
+                            spriteMatrix.ty -= renderer.height;
+                        }
+                        var matrix = spriteMatrix.prepend(worldMatrix);
+                        matrix.invert();
+                        var point = matrix.transformPoint(new Fire.Vec2(worldX, worldY));
+                        // 因为世界坐标是Y轴向上，图片是Y轴向下，所以这边进行图片反转
+                        point.y = -point.y;
+                        point.x += renderer.sprite.x;
+                        point.y += renderer.sprite.y;
+                
+                        var texture = renderer.sprite.texture;
+                        if (! texture) {
+                            return false;
+                        }
+                
+                        if (0 &lt; point.x &amp;&amp; point.x &lt; texture.width  &amp;&amp;
+                            0 &lt; point.y &amp;&amp; point.y &lt; texture.height) {
+                            var alphaThreshold = renderer.sprite.alphaThreshold;
+                            if (renderer.sprite.pixelLevelHitTest &amp;&amp; alphaThreshold &gt; 0) {
+                                return texture.getPixel(point.x, point.y).a &gt;= alphaThreshold;
+                            }
+                            return true;
+                        }
+                        return false;
+                    },
+                
                     ////////////////////////////////////////////////////////////////////
                     // other methods
                     ////////////////////////////////////////////////////////////////////
@@ -723,6 +768,14 @@
                         var countBefore = this._components.length;
                         for (var c = 0; c &lt; countBefore; ++c) {
                             var component = this._components[c];
+                            // @ifdef EDITOR
+                            if (! (component instanceof Fire.Component)) {
+                                Fire.error(&#x27;Sorry, one of entity [%s]\&#x27;s component is corrupted! The component which original index is %s has been removed.\nSee DevTools for corrupted value.&#x27;, this.name, c);
+                                console.log(&#x27;Corrupted component value:&#x27;, component);
+                                this._removeComponent(component);
+                                continue;
+                            }
+                            // @endif
                             component._onEntityActivated(value);
                         }
                         // activate children recursively
@@ -781,9 +834,7 @@
                         // invoke callbacks
                         Engine._renderContext.onEntityCreated(clone, true);
                 // @ifdef EDITOR
-                        if (editorCallback.onEntityCreated) {
-                            editorCallback.onEntityCreated(clone);
-                        }
+                        editorCallback.onEntityCreated(clone);
                 // @endif
                         // activate components
                         if (clone._active) {

@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.3.0</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -45,6 +45,7 @@
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
                             <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
+                            <li><a class="type" href="../classes/AssetBundleBase.html">AssetBundleBase</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
@@ -77,8 +78,11 @@
                             <li><a class="type" href="../classes/MouseEvent.html">MouseEvent</a></li>
                             <li><a class="type" href="../classes/NoScale.html">NoScale</a></li>
                             <li><a class="type" href="../classes/Path.html">Path</a></li>
+                            <li><a class="type" href="../classes/Playable.html">Playable</a></li>
                             <li><a class="type" href="../classes/Rect.html">Rect</a></li>
                             <li><a class="type" href="../classes/Renderer.html">Renderer</a></li>
+                            <li><a class="type" href="../classes/Resources.html">Resources</a></li>
+                            <li><a class="type" href="../classes/ResourcesBundle.html">ResourcesBundle</a></li>
                             <li><a class="type" href="../classes/Screen.html">Screen</a></li>
                             <li><a class="type" href="../classes/Screen.ContainerStrategy.html">Screen.ContainerStrategy</a></li>
                             <li><a class="type" href="../classes/Screen.ContentStrategy.html">Screen.ContentStrategy</a></li>
@@ -320,15 +324,26 @@
                             var parentEL = targetEL.parentElement;
                             if ( parentEL &amp;&amp; parentEL instanceof HierarchyItem ) {
                                 Editor.sendToMainWindow(&#x27;engine:create-entity&#x27;, {
-                                    &#x27;parent-id&#x27;: parentEL.userId
+                                    &#x27;parent-id&#x27;: parentEL.userId,
+                                    &#x27;options&#x27;: {
+                                        &#x27;select-in-hierarchy&#x27;: true
+                                    }
                                 });
                             }
                             else {
-                                Editor.sendToMainWindow(&#x27;engine:create-entity&#x27;);
+                                Editor.sendToMainWindow(&#x27;engine:create-entity&#x27;, {
+                                    &#x27;options&#x27;: {
+                                        &#x27;select-in-hierarchy&#x27;: true
+                                    }
+                                });
                             }
                         }
                         else {
-                            Editor.sendToMainWindow(&#x27;engine:create-entity&#x27;);
+                            Editor.sendToMainWindow(&#x27;engine:create-entity&#x27;, {
+                                &#x27;options&#x27;: {
+                                    &#x27;select-in-hierarchy&#x27;: true
+                                }
+                            });
                         }
                     },
                 
@@ -337,13 +352,19 @@
                         if ( contextSelection.length &gt; 0 ) {
                             var targetEL = this.idToItem[contextSelection[0]];
                             Editor.sendToMainWindow(&#x27;engine:create-entity&#x27;, {
-                                &#x27;parent-id&#x27;: targetEL.userId
+                                &#x27;parent-id&#x27;: targetEL.userId,
+                                &#x27;options&#x27;: {
+                                    &#x27;select-in-hierarchy&#x27;: true
+                                }
                             });
                         }
                         else {
                             var activeId = Editor.Selection.activeEntityId;
                             Editor.sendToMainWindow(&#x27;engine:create-entity&#x27;, {
-                                &#x27;parent-id&#x27;: activeId
+                                &#x27;parent-id&#x27;: activeId,
+                                &#x27;options&#x27;: {
+                                    &#x27;select-in-hierarchy&#x27;: true
+                                }
                             });
                         }
                     },
@@ -687,8 +708,8 @@
                                             ent.parent = parentEnt;
                                             ent.transform.position = new Fire.Vec2(0,0);
                                             Editor.Selection.selectEntity( ent.id, false, true );
-                                            Editor.sendToMainWindow( &#x27;entity:added&#x27;, ent.id );
-                                            Editor.sendToWindows( &#x27;scene:dirty&#x27; );
+                                            Editor.sendToMainWindow( &#x27;scene:dirty&#x27;, ent.id );
+                                            Editor.sendToWindows( &#x27;scene:repaint&#x27; );
                                             Fire.AssetLibrary.cacheAsset( asset );
                                         }.bind(this) );
                                     }

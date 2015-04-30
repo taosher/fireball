@@ -1,6 +1,6 @@
 {
   "name": "code-editor",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "The code editor plugin for Fireball Editor",
   "author": "Firebox Technology",
   "fireball": {
@@ -16,7 +16,6 @@
         "min-width": 400,
         "min-height": 400,
         "messages": [
-          "panel:open",
           "asset:changed"
         ],
         "profiles": {

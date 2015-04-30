@@ -1,13 +1,13 @@
 {
   "name": "fire-console",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Fireball builtin console view",
   "author": "Firebox Technology",
   "fireball": {
     "main": "editor/main.js",
     "menus": [
       {
-        "path": "Fireball/Panels/Console",
+        "path": "View/Panels/Console",
         "message": "fire-console:open"
       }
     ],
@@ -20,9 +20,11 @@
         "height": 300,
         "messages": [
           "console:log",
+          "console:success",
+          "console:failed",
+          "console:info",
           "console:warn",
-          "console:error",
-          "console:info"
+          "console:error"
         ]
       }
     }

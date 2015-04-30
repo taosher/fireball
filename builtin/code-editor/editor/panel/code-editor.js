@@ -111,8 +111,8 @@ Polymer({
         this.$.mirror.createEditor();
     },
 
-    'panel:open': function ( event ) {
-        var uuid = event.detail.uuid;
+    'panel:open': function (detail) {
+        var uuid = detail.uuid;
 
         if (this.$.mirror.dirty) {
             var res = this.confirmSave();
@@ -135,9 +135,9 @@ Polymer({
         this.load(uuid);
     },
 
-    'asset:changed': function ( event ) {
-        var uuid = event.detail.uuid;
-        var outside = event.detail.outside;
+    'asset:changed': function (detail) {
+        var uuid = detail.uuid;
+        var outside = detail.outside;
 
         if ( this.uuid !== uuid ) {
             return;

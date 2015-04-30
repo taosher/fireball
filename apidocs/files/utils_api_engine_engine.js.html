@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.3.0</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -45,6 +45,7 @@
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
                             <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
+                            <li><a class="type" href="../classes/AssetBundleBase.html">AssetBundleBase</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
@@ -77,8 +78,11 @@
                             <li><a class="type" href="../classes/MouseEvent.html">MouseEvent</a></li>
                             <li><a class="type" href="../classes/NoScale.html">NoScale</a></li>
                             <li><a class="type" href="../classes/Path.html">Path</a></li>
+                            <li><a class="type" href="../classes/Playable.html">Playable</a></li>
                             <li><a class="type" href="../classes/Rect.html">Rect</a></li>
                             <li><a class="type" href="../classes/Renderer.html">Renderer</a></li>
+                            <li><a class="type" href="../classes/Resources.html">Resources</a></li>
+                            <li><a class="type" href="../classes/ResourcesBundle.html">ResourcesBundle</a></li>
                             <li><a class="type" href="../classes/Screen.html">Screen</a></li>
                             <li><a class="type" href="../classes/Screen.ContainerStrategy.html">Screen.ContainerStrategy</a></li>
                             <li><a class="type" href="../classes/Screen.ContentStrategy.html">Screen.ContentStrategy</a></li>
@@ -123,20 +127,22 @@
                 var Engine = (function () {
                 
                     /**
-                     * !#zh 这个模块提供引擎的一些全局接口和状态状态
+                     * !#zh 这个静态模块提供引擎运行时的一些全局接口和状态状态。
+                     * !#en Access to engine runtime data.
+                     * This class contains static methods for looking up information about and controlling the runtime data.
                      *
                      * @class Engine
                      * @static
+                     * @extends Playable
                      */
                     var Engine = {
                 // @ifdef EDITOR
                         _editorCallback: editorCallback
                 // @endif
                     };
+                    Playable.call(Engine);
+                    JS.mixin(Engine, Playable.prototype);
                 
-                    var isPlaying = false;
-                    var isPaused = false;
-                    var stepOnce = false;
                     var loadingScene = &#x27;&#x27;;
                 
                     // We should use this id to cancel ticker, otherwise if the engine stop and replay immediately,
@@ -196,28 +202,7 @@
                     Engine._inputContext = null;
                 
                     /**
-                     * is in player or playing in editor?
-                     * @property isPlaying
-                     * @type {boolean}
-                     * @readOnly
                      */
-                    Object.defineProperty(Engine, &#x27;isPlaying&#x27;, {
-                        get: function () {
-                            return isPlaying;
-                        }
-                    });
-                
-                    /**
-                     * is editor currently paused?
-                     * @property isPaused
-                     * @type {boolean}
-                     * @readOnly
-                     */
-                    Object.defineProperty(Engine, &#x27;isPaused&#x27;, {
-                        get: function () {
-                            return isPaused;
-                        }
-                    });
                 
                     /**
                      * is loading scene?
@@ -225,27 +210,26 @@
                      * @type {boolean}
                      * @readOnly
                      */
-                    Object.defineProperty(Engine, &#x27;loadingScene&#x27;, {
-                        get: function () {
-                            return loadingScene;
-                        }
+                    JS.get(Engine, &#x27;loadingScene&#x27;, function () {
+                        return loadingScene;
                     });
                 
                     var lockingScene = null;
                 
                     /**
-                     * !#en You should check whether you can modify the scene in constructors which may called by the engine while deserializing.
+                     * !#en You should check whether you can modify the scene in constructors which may called by the engine while
+                     * deserializing.
                      * !#zh 这个属性用来判断场景物体的构造函数执行时是否可以把物体加到场景里。
                      * 这个属性和 Fire._isCloning 很类似。但这里关注的是场景是否能修改，而 Fire._isCloning 强调的是持有的对象是否需要重新创建。
                      * @property _canModifyCurrentScene
                      * @type {boolean}
                      * @private
                      */
-                    Object.defineProperty(Engine, &#x27;_canModifyCurrentScene&#x27;, {
-                        get: function () {
+                    JS.getset(Engine, &#x27;_canModifyCurrentScene&#x27;,
+                        function () {
                             return !lockingScene;
                         },
-                        set: function (value) {
+                        function (value) {
                             if (value) {
                                 // unlock
                                 this._scene = lockingScene;
@@ -260,18 +244,17 @@
                                 this._scene = null;
                             }
                         }
-                    });
+                    );
                 
                     var inited = false;
+                
                     /**
                      * @property inited
                      * @type {boolean}
                      * @readOnly
                      */
-                    Object.defineProperty(Engine, &#x27;inited&#x27;, {
-                        get: function () {
-                            return inited;
-                        }
+                    JS.get(Engine, &#x27;inited&#x27;, function () {
+                        return inited;
                     });
                 
                     // Scene name to uuid
@@ -295,8 +278,10 @@
                         }
                         inited = true;
                 
-                        Engine._renderContext = new Fire._Runtime.RenderContext( w, h, canvas );
+                        Engine._renderContext = new Runtime.RenderContext( w, h, canvas );
                         Engine._interactionContext = new InteractionContext();
+                
+                        Runtime.init();
                 
                 // @ifdef EDITOR
                         if (Fire.isEditor === false) {
@@ -305,107 +290,63 @@
                             //if (editorCallback.onSceneLoaded) {
                             //    editorCallback.onSceneLoaded(Engine._scene);
                             //}
-                            if (editorCallback.onSceneLaunched) {
-                                editorCallback.onSceneLaunched(Engine._scene);
-                            }
+                            editorCallback.onSceneLaunched(Engine._scene);
                         }
                 // @endif
                 
                         if (options) {
                             JS.mixin(Engine._sceneInfos, options.scenes);
+                            Resources._resBundle.init(options.resBundle);
                         }
                         return Engine._renderContext;
                     };
                 
-                    /**
-                     * Start the engine loop. This method will be called by boot.js or editor.
-                     * @method play
-                     */
-                    Engine.play = function () {
-                        if (isPlaying &amp;&amp; !isPaused) {
-                            Fire.warn(&#x27;Fireball is already playing&#x27;);
-                            return;
-                        }
-                        if (isPlaying &amp;&amp; isPaused) {
-                            isPaused = false;
                 // @ifdef EDITOR
-                            if (editorCallback.onEnginePlayed) {
-                                editorCallback.onEnginePlayed(true);
-                            }
-                // @endif
-                            return;
+                    Engine.onError = function (error) {
+                        switch (error) {
+                            case &#x27;already-playing&#x27;:
+                                Fire.warn(&#x27;Fireball is already playing&#x27;);
+                                break;
                         }
-                        isPlaying = true;
+                    };
+                    Engine.onResume = function () {
+                        editorCallback.onEnginePlayed(true);
+                    };
+                    Engine.onPause = function () {
+                        editorCallback.onEnginePaused();
+                    };
+                // @endif
                 
+                    Engine.onPlay = function () {
                         Engine._inputContext = new InputContext(Engine._renderContext);
                         var now = Ticker.now();
                         Time._restart(now);
-                        update();
+                        this.update();
                 
                 // @ifdef EDITOR
-                        if (editorCallback.onEnginePlayed) {
-                            editorCallback.onEnginePlayed(false);
-                        }
+                        editorCallback.onEnginePlayed(false);
                 // @endif
                     };
                 
-                    /**
-                     * Stop the engine loop.
-                     * @method stop
-                     */
-                    Engine.stop = function () {
-                        if (isPlaying) {
-                            FObject._deferredDestroy();
-                            Engine._inputContext.destruct();
-                            Engine._inputContext = null;
-                            Input._reset();
+                    Engine.onStop = function () {
+                        FObject._deferredDestroy();
                 
-                            // reset states
-                            isPlaying = false;
-                            isPaused = false;
-                            loadingScene = &#x27;&#x27;; // TODO: what if loading scene ?
-                            if (requestId !== -1) {
-                                Ticker.cancelAnimationFrame(requestId);
-                                requestId = -1;
-                            }
+                        Engine._inputContext.destruct();
+                        Engine._inputContext = null;
+                
+                        Input._reset();
+                
+                        // reset states
+                        loadingScene = &#x27;&#x27;; // TODO: what if loading scene ?
+                        if (requestId !== -1) {
+                            Ticker.cancelAnimationFrame(requestId);
+                            requestId = -1;
+                        }
                 
                 // @ifdef EDITOR
-                            if (editorCallback.onEngineStopped) {
-                                editorCallback.onEngineStopped();
-                            }
-                // @endif
-                        }
-                    };
-                
-                    /**
-                     * Pause the engine loop.
-                     * @method pause
-                     */
-                    Engine.pause = function () {
-                        isPaused = true;
-                // @ifdef EDITOR
-                        if (editorCallback.onEnginePaused) {
-                            editorCallback.onEnginePaused();
-                        }
+                        editorCallback.onEngineStopped();
                 // @endif
                     };
-                
-                    /**
-                     * Perform a single frame step.
-                     * @method step
-                     */
-                    Engine.step = function () {
-                        this.pause();
-                        stepOnce = true;
-                        if ( !isPlaying ) {
-                            Engine.play();
-                        }
-                    };
-                
-                    function render () {
-                        // render
-                        Engine._scene.render(Engine._renderContext);
-                    }
                 
                     function doUpdate (updateLogic) {
                         if (Engine._scene) {
@@ -413,7 +354,7 @@
                                 Engine._scene.update();
                                 FObject._deferredDestroy();
                             }
-                            render();
+                            Runtime.render();
                 
                             // update interaction context
                             Engine._interactionContext.update(Engine._scene.entities);
@@ -424,20 +365,21 @@
                      * @method update
                      * @private
                      */
-                    function update (unused) {
-                        if (!isPlaying) {
+                    Engine.update = function (unused) {
+                        if (!Engine._isPlaying) {
                             return;
                         }
-                        requestId = Ticker.requestAnimationFrame(update);
+                        requestId = Ticker.requestAnimationFrame(Engine.update);    // no bind this
                 
                         //if (sceneLoadingQueue) {
                         //    return;
                         //}
                 
-                        var updateLogic = !isPaused || stepOnce;
-                        stepOnce = false;
+                        var updateLogic = !Engine._isPaused || Engine._stepOnce;
                         var now = Ticker.now();
-                        Time._update(now, !updateLogic);
+                        Time._update(now, !updateLogic, Engine._stepOnce ? 1 / 60 : 0);
+                        Engine._stepOnce = false;
+                
                         doUpdate(updateLogic);
                 
                 // @ifdef DEV
@@ -445,8 +387,7 @@
                             __TESTONLY__.update(updateLogic);
                         }
                 // @endif
-                    }
-                    Engine.update = update;
+                    };
                 
                     /**
                      * Launch loaded scene.
@@ -465,9 +406,7 @@
                         // unload scene
                         var oldScene = Engine._scene;
                 // @ifdef EDITOR
-                        if (editorCallback.onStartUnloadScene) {
-                            editorCallback.onStartUnloadScene(oldScene);
-                        }
+                        editorCallback.onStartUnloadScene(oldScene);
                 // @endif
                 
                         if (Fire.isValid(oldScene)) {
@@ -497,13 +436,16 @@
                         Engine._dontDestroyEntities.length = 0;
                         Engine._scene = scene;
                         Engine._renderContext.onSceneLaunched(scene);
+                
                 // @ifdef EDITOR
-                        if (editorCallback.onSceneLaunched) {
-                            editorCallback.onSceneLaunched(scene);
-                        }
+                        editorCallback.onBeforeActivateScene(scene);
                 // @endif
                 
                         scene.activate();
+                
+                // @ifdef EDITOR
+                        editorCallback.onSceneLaunched(scene);
+                // @endif
                     };
                 
                     /**
@@ -568,7 +510,9 @@
                     /**
                      * Preloads the scene to reduces loading time. You can call this method at any time you want.
                      *
-                     * After calling this method, you still need to launch the scene by &#x60;Engine.loadScene&#x60; because the loading logic will not changed. It will be totally fine to call &#x60;Engine.loadScene&#x60; at any time even if the preloading is not yet finished, the scene will be launched after loaded automatically.
+                     * After calling this method, you still need to launch the scene by &#x60;Engine.loadScene&#x60; because the loading logic
+                     * will not changed. It will be totally fine to call &#x60;Engine.loadScene&#x60; at any time even if the preloading is not
+                     * yet finished, the scene will be launched after loaded automatically.
                      * @method preloadScene
                      * @param {string} sceneName - the name of the scene to preload
                      * @param {function} [onLoaded] - callback, will be called after the scene loaded
@@ -590,6 +534,37 @@
                 })();
                 
                 Fire.Engine = Engine;
+                
+                // refine inherited api doc
+                
+                /**
+                 * is in player or playing in editor?
+                 * @property isPlaying
+                 * @type {boolean}
+                 * @readOnly
+                 */
+                /**
+                 * is editor currently paused?
+                 * @property isPaused
+                 * @type {boolean}
+                 * @readOnly
+                 */
+                /**
+                 * Start the engine loop. This method will be called by boot.js or editor.
+                 * @method play
+                 */
+                /**
+                 * Stop the engine loop.
+                 * @method stop
+                 */
+                /**
+                 * Pause the engine loop.
+                 * @method pause
+                 */
+                /**
+                 * Perform a single frame step.
+                 * @method step
+                 */
                 
                     </pre>
                 </div>

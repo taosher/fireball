@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.3.0</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -45,6 +45,7 @@
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
                             <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
+                            <li><a class="type" href="../classes/AssetBundleBase.html">AssetBundleBase</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
@@ -77,8 +78,11 @@
                             <li><a class="type" href="../classes/MouseEvent.html">MouseEvent</a></li>
                             <li><a class="type" href="../classes/NoScale.html">NoScale</a></li>
                             <li><a class="type" href="../classes/Path.html">Path</a></li>
+                            <li><a class="type" href="../classes/Playable.html">Playable</a></li>
                             <li><a class="type" href="../classes/Rect.html">Rect</a></li>
                             <li><a class="type" href="../classes/Renderer.html">Renderer</a></li>
+                            <li><a class="type" href="../classes/Resources.html">Resources</a></li>
+                            <li><a class="type" href="../classes/ResourcesBundle.html">ResourcesBundle</a></li>
                             <li><a class="type" href="../classes/Screen.html">Screen</a></li>
                             <li><a class="type" href="../classes/Screen.ContainerStrategy.html">Screen.ContainerStrategy</a></li>
                             <li><a class="type" href="../classes/Screen.ContentStrategy.html">Screen.ContentStrategy</a></li>
@@ -122,7 +126,7 @@
                 Polymer({
                     created: function () {
                         this.renderContext = null;
-                        this.pixiGrids = null;
+                        this.grids = null;
                         this.svgGizmos = null;
                         this.view = { width: 0, height: 0 };
                         this.sceneCamera = {
@@ -140,8 +144,8 @@
                     ready: function () {
                         this.tabIndex = EditorUI.getParentTabIndex(this)+1;
                 
-                        // init pixi grids
-                        this.pixiGrids = new Editor.PixiGrids();
+                        // init grids
+                        this.grids = new Editor.Grids();
                 
                         // init gizmos
                         this.svgGizmos = new Editor.SvgGizmos( this.$.gizmos );
@@ -164,9 +168,8 @@
                                                                           this.view.height,
                                                                           this.$.canvas );
                         if ( this.renderContext ) {
-                            var graphics = new PIXI.Graphics();
-                            this.renderContext.getBackgroundNode().addChild(graphics);
-                            this.pixiGrids.setGraphics(graphics);
+                            var graphics = new Fire._Runtime.RenderContext.Graphics(this.renderContext.getBackgroundNode(), this.renderContext);
+                            this.grids.setGraphics(graphics);
                 
                             // make sure we apply the size to all canvas
                             this.resize();
@@ -185,8 +188,9 @@
                         // create editor camera
                         if ( cameraEnt === null ) {
                             // TODO: add this code to EditorUtils
-                            cameraEnt = new Fire.Entity.createWithFlags(&#x27;Scene Camera&#x27;,
-                                                Fire._ObjectFlags.Hide | Fire._ObjectFlags.EditorOnly);
+                            cameraEnt = new Fire.Entity(&#x27;Scene Camera&#x27;, {
+                                flags: Fire._ObjectFlags.Hide | Fire._ObjectFlags.EditorOnly
+                            });
                             camera = cameraEnt.addComponent(Fire.Camera);
                         }
                         else {
@@ -200,7 +204,7 @@
                         //
                         camera.size = this.view.height;
                         this.renderContext.camera = camera;
-                        this.pixiGrids.setCamera(camera);
+                        this.grids.setCamera(camera);
                         this.svgGizmos.setCamera(camera);
                 
                         //
@@ -217,7 +221,7 @@
                                 height: clientRect.height,
                             };
                             this.renderContext.size = new Fire.Vec2( this.view.width, this.view.height );
-                            this.pixiGrids.resize( this.view.width, this.view.height );
+                            this.grids.resize( this.view.width, this.view.height );
                             this.svgGizmos.resize( this.view.width, this.view.height );
                 
                             this.repaint();
@@ -244,8 +248,8 @@
                         if ( !this.renderContext || !this.renderContext.camera )
                             return;
                 
-                        this.pixiGrids.update();
-                        Fire.Engine._scene.render(this.renderContext);
+                        this.grids.update();
+                        Fire._Runtime.render(this.renderContext);
                         this.interactionContext.update(Fire.Engine._scene.entities);
                     },
                 

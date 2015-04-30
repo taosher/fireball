@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.3.0</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -45,6 +45,7 @@
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
                             <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
+                            <li><a class="type" href="../classes/AssetBundleBase.html">AssetBundleBase</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
@@ -77,8 +78,11 @@
                             <li><a class="type" href="../classes/MouseEvent.html">MouseEvent</a></li>
                             <li><a class="type" href="../classes/NoScale.html">NoScale</a></li>
                             <li><a class="type" href="../classes/Path.html">Path</a></li>
+                            <li><a class="type" href="../classes/Playable.html">Playable</a></li>
                             <li><a class="type" href="../classes/Rect.html">Rect</a></li>
                             <li><a class="type" href="../classes/Renderer.html">Renderer</a></li>
+                            <li><a class="type" href="../classes/Resources.html">Resources</a></li>
+                            <li><a class="type" href="../classes/ResourcesBundle.html">ResourcesBundle</a></li>
                             <li><a class="type" href="../classes/Screen.html">Screen</a></li>
                             <li><a class="type" href="../classes/Screen.ContainerStrategy.html">Screen.ContainerStrategy</a></li>
                             <li><a class="type" href="../classes/Screen.ContentStrategy.html">Screen.ContentStrategy</a></li>
@@ -114,6 +118,9 @@
                 <h1>Engine Class</h1>
                 <div class="box meta">
                 
+                        <div class="extends">
+                            Extends <a href="../classes/Playable.html" class="crosslink">Playable</a>
+                        </div>
                 
                         <div class="foundat">
                             Defined in: <a href="../files/utils_api_engine_engine.js.html#l8"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:8</code></a>
@@ -125,7 +132,9 @@
                 
                 
                 <div class="box intro">
-                    <p>!#zh 这个模块提供引擎的一些全局接口和状态状态</p>
+                    <p>!#zh 这个静态模块提供引擎运行时的一些全局接口和状态状态。
+                !#en Access to engine runtime data.
+                This class contains static methods for looking up information about and controlling the runtime data.</p>
                 
                 </div>
                 
@@ -162,7 +171,7 @@
                     <div class="index-section properties">
                         <h3>Properties</h3>
                 
-                        <ul class="index-list properties">
+                        <ul class="index-list properties extends">
                                 <li class="index-item property private">
                                     <a href="#property__canModifyCurrentScene">_canModifyCurrentScene</a>
                 
@@ -195,11 +204,11 @@
                                     <a href="#property_isLoadingScene">isLoadingScene</a>
                 
                                 </li>
-                                <li class="index-item property">
+                                <li class="index-item property inherited">
                                     <a href="#property_isPaused">isPaused</a>
                 
                                 </li>
-                                <li class="index-item property">
+                                <li class="index-item property inherited">
                                     <a href="#property_isPlaying">isPlaying</a>
                 
                                 </li>
@@ -211,7 +220,7 @@
                     <div class="index-section methods">
                         <h3>Methods</h3>
                 
-                        <ul class="index-list methods">
+                        <ul class="index-list methods extends">
                 
                 
                                 <li class="index-item method private">
@@ -230,11 +239,31 @@
                                     <a href="#method_loadScene">loadScene</a>
                 
                                 </li>
-                                <li class="index-item method">
+                                <li class="index-item method private inherited">
+                                    <a href="#method_onError">onError</a>
+                
+                                </li>
+                                <li class="index-item method private inherited">
+                                    <a href="#method_onPause">onPause</a>
+                
+                                </li>
+                                <li class="index-item method private inherited">
+                                    <a href="#method_onPlay">onPlay</a>
+                
+                                </li>
+                                <li class="index-item method private inherited">
+                                    <a href="#method_onResume">onResume</a>
+                
+                                </li>
+                                <li class="index-item method private inherited">
+                                    <a href="#method_onStop">onStop</a>
+                
+                                </li>
+                                <li class="index-item method inherited">
                                     <a href="#method_pause">pause</a>
                 
                                 </li>
-                                <li class="index-item method">
+                                <li class="index-item method inherited">
                                     <a href="#method_play">play</a>
                 
                                 </li>
@@ -242,11 +271,11 @@
                                     <a href="#method_preloadScene">preloadScene</a>
                 
                                 </li>
-                                <li class="index-item method">
+                                <li class="index-item method inherited">
                                     <a href="#method_step">step</a>
                 
                                 </li>
-                                <li class="index-item method">
+                                <li class="index-item method inherited">
                                     <a href="#method_stop">stop</a>
                 
                                 </li>
@@ -280,7 +309,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l119"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:119</code></a>
+                                    <a href="../files/utils_api_engine_engine.js.html#l98"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:98</code></a>
                                     </p>
                             
                             
@@ -288,7 +317,8 @@
                             
                                 <div class="extended-detail">
                                     <div class="description">
-                                        <p>!#en You should check whether you can modify the scene in constructors which may called by the engine while deserializing.
+                                        <p>!#en You should check whether you can modify the scene in constructors which may called by the engine while
+                            deserializing.
                             !#zh 这个属性用来判断场景物体的构造函数执行时是否可以把物体加到场景里。
                             这个属性和 Fire._isCloning 很类似。但这里关注的是场景是否能修改，而 Fire._isCloning 强调的是持有的对象是否需要重新创建。</p>
                             
@@ -313,7 +343,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l65"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:65</code></a>
+                                    <a href="../files/utils_api_engine_engine.js.html#l67"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:67</code></a>
                                     </p>
                             
                             
@@ -344,7 +374,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l73"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:73</code></a>
+                                    <a href="../files/utils_api_engine_engine.js.html#l75"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:75</code></a>
                                     </p>
                             
                             
@@ -375,7 +405,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l57"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:57</code></a>
+                                    <a href="../files/utils_api_engine_engine.js.html#l59"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:59</code></a>
                                     </p>
                             
                             
@@ -406,7 +436,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l49"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:49</code></a>
+                                    <a href="../files/utils_api_engine_engine.js.html#l51"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:51</code></a>
                                     </p>
                             
                             
@@ -437,7 +467,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l29"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:29</code></a>
+                                    <a href="../files/utils_api_engine_engine.js.html#l31"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:31</code></a>
                                     </p>
                             
                             
@@ -474,7 +504,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l149"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:149</code></a>
+                                    <a href="../files/utils_api_engine_engine.js.html#l130"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:130</code></a>
                                     </p>
                             
                             
@@ -503,7 +533,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l105"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:105</code></a>
+                                    <a href="../files/utils_api_engine_engine.js.html#l86"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:86</code></a>
                                     </p>
                             
                             
@@ -531,9 +561,12 @@
                                 </h3>
                             
                                 <div class="meta">
-                                            <p>
-                                            Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l93"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:93</code></a>
+                                        <p>Inherited from
+                                        <a href="../classes/Playable.html#property_isPaused" class="type">
+                                            Playable
+                                        </a>
+                                        but overwritten in
+                                    <a href="../files/utils_api_engine_engine.js.html#l425"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:425</code></a>
                                     </p>
                             
                             
@@ -561,9 +594,12 @@
                                 </h3>
                             
                                 <div class="meta">
-                                            <p>
-                                            Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l81"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:81</code></a>
+                                        <p>Inherited from
+                                        <a href="../classes/Playable.html#property_isPlaying" class="type">
+                                            Playable
+                                        </a>
+                                        but overwritten in
+                                    <a href="../files/utils_api_engine_engine.js.html#l419"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:419</code></a>
                                     </p>
                             
                             
@@ -619,7 +655,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l334"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:334</code></a>
+                                    <a href="../files/utils_api_engine_engine.js.html#l271"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:271</code></a>
                                     </p>
                             
                             
@@ -695,7 +731,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l417"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:417</code></a>
+                                    <a href="../files/utils_api_engine_engine.js.html#l355"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:355</code></a>
                                     </p>
                             
                             
@@ -790,7 +826,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l165"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:165</code></a>
+                                    <a href="../files/utils_api_engine_engine.js.html#l144"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:144</code></a>
                                     </p>
                             
                             
@@ -898,7 +934,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l392"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:392</code></a>
+                                    <a href="../files/utils_api_engine_engine.js.html#l330"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:330</code></a>
                                     </p>
                             
                             
@@ -972,8 +1008,210 @@
                             
                                 </div>
                             </div>
+                            <a name="method_onError" class="anchor-link"></a>
+                            <div class="method item private inherited">
+                                <h3 class="name"><code>onError</code>
+                            
+                                    <div class="args">
+                                        <span class="paren">(</span><ul class="args-list inline commas">
+                                            <li class="arg">
+                                                    <code>errorCode</code>
+                                            </li>
+                                        </ul><span class="paren">)</span>
+                                    </div>
+                            
+                            
+                            
+                                    <span class="flag private">private</span>
+                            
+                            
+                            
+                            
+                            
+                                </h3>
+                            
+                                <div class="meta">
+                                            <p>Inherited from
+                                            <a href="../classes/Playable.html#method_onError" class="type">Playable</a>:
+                                    <a href="../files/utils_api_engine_playable.js.html#l65"><code>utils&#x2F;api&#x2F;engine&#x2F;playable.js:65</code></a>
+                                    </p>
+                            
+                            
+                            
+                                </div>
+                            
+                                <div class="extended-detail">
+                            
+                                    <div class="description">
+                                        
+                                    </div>
+                            
+                                        <div class="params">
+                                            <h4>Parameters:</h4>
+                            
+                                            <ul class="params-list">
+                                                <li class="param">
+                                                        <code class="param-name">errorCode</code>
+                                                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/String" class="crosslink external" target="_blank">String</a></span>
+                            
+                            
+                                                    <div class="param-description">
+                                                         
+                                                    </div>
+                            
+                                                </li>
+                                            </ul>
+                                        </div>
+                            
+                            
+                                </div>
+                            </div>
+                            <a name="method_onPause" class="anchor-link"></a>
+                            <div class="method item private inherited">
+                                <h3 class="name"><code>onPause</code>
+                            
+                                    <span class="paren">()</span>
+                            
+                            
+                            
+                                    <span class="flag private">private</span>
+                            
+                            
+                            
+                            
+                            
+                                </h3>
+                            
+                                <div class="meta">
+                                            <p>Inherited from
+                                            <a href="../classes/Playable.html#method_onPause" class="type">Playable</a>:
+                                    <a href="../files/utils_api_engine_playable.js.html#l50"><code>utils&#x2F;api&#x2F;engine&#x2F;playable.js:50</code></a>
+                                    </p>
+                            
+                            
+                            
+                                </div>
+                            
+                                <div class="extended-detail">
+                            
+                                    <div class="description">
+                                        
+                                    </div>
+                            
+                            
+                            
+                                </div>
+                            </div>
+                            <a name="method_onPlay" class="anchor-link"></a>
+                            <div class="method item private inherited">
+                                <h3 class="name"><code>onPlay</code>
+                            
+                                    <span class="paren">()</span>
+                            
+                            
+                            
+                                    <span class="flag private">private</span>
+                            
+                            
+                            
+                            
+                            
+                                </h3>
+                            
+                                <div class="meta">
+                                            <p>Inherited from
+                                            <a href="../classes/Playable.html#method_onPlay" class="type">Playable</a>:
+                                    <a href="../files/utils_api_engine_playable.js.html#l45"><code>utils&#x2F;api&#x2F;engine&#x2F;playable.js:45</code></a>
+                                    </p>
+                            
+                            
+                            
+                                </div>
+                            
+                                <div class="extended-detail">
+                            
+                                    <div class="description">
+                                        
+                                    </div>
+                            
+                            
+                            
+                                </div>
+                            </div>
+                            <a name="method_onResume" class="anchor-link"></a>
+                            <div class="method item private inherited">
+                                <h3 class="name"><code>onResume</code>
+                            
+                                    <span class="paren">()</span>
+                            
+                            
+                            
+                                    <span class="flag private">private</span>
+                            
+                            
+                            
+                            
+                            
+                                </h3>
+                            
+                                <div class="meta">
+                                            <p>Inherited from
+                                            <a href="../classes/Playable.html#method_onResume" class="type">Playable</a>:
+                                    <a href="../files/utils_api_engine_playable.js.html#l55"><code>utils&#x2F;api&#x2F;engine&#x2F;playable.js:55</code></a>
+                                    </p>
+                            
+                            
+                            
+                                </div>
+                            
+                                <div class="extended-detail">
+                            
+                                    <div class="description">
+                                        
+                                    </div>
+                            
+                            
+                            
+                                </div>
+                            </div>
+                            <a name="method_onStop" class="anchor-link"></a>
+                            <div class="method item private inherited">
+                                <h3 class="name"><code>onStop</code>
+                            
+                                    <span class="paren">()</span>
+                            
+                            
+                            
+                                    <span class="flag private">private</span>
+                            
+                            
+                            
+                            
+                            
+                                </h3>
+                            
+                                <div class="meta">
+                                            <p>Inherited from
+                                            <a href="../classes/Playable.html#method_onStop" class="type">Playable</a>:
+                                    <a href="../files/utils_api_engine_playable.js.html#l60"><code>utils&#x2F;api&#x2F;engine&#x2F;playable.js:60</code></a>
+                                    </p>
+                            
+                            
+                            
+                                </div>
+                            
+                                <div class="extended-detail">
+                            
+                                    <div class="description">
+                                        
+                                    </div>
+                            
+                            
+                            
+                                </div>
+                            </div>
                             <a name="method_pause" class="anchor-link"></a>
-                            <div class="method item">
+                            <div class="method item inherited">
                                 <h3 class="name"><code>pause</code>
                             
                                     <span class="paren">()</span>
@@ -988,9 +1226,12 @@
                                 </h3>
                             
                                 <div class="meta">
-                                            <p>
-                                            Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l263"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:263</code></a>
+                                        <p>Inherited from
+                                        <a href="../classes/Playable.html#method_pause" class="type">
+                                            Playable
+                                        </a>
+                                        but overwritten in
+                                    <a href="../files/utils_api_engine_engine.js.html#l439"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:439</code></a>
                                     </p>
                             
                             
@@ -1009,7 +1250,7 @@
                                 </div>
                             </div>
                             <a name="method_play" class="anchor-link"></a>
-                            <div class="method item">
+                            <div class="method item inherited">
                                 <h3 class="name"><code>play</code>
                             
                                     <span class="paren">()</span>
@@ -1024,9 +1265,12 @@
                                 </h3>
                             
                                 <div class="meta">
-                                            <p>
-                                            Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l203"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:203</code></a>
+                                        <p>Inherited from
+                                        <a href="../classes/Playable.html#method_play" class="type">
+                                            Playable
+                                        </a>
+                                        but overwritten in
+                                    <a href="../files/utils_api_engine_engine.js.html#l431"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:431</code></a>
                                     </p>
                             
                             
@@ -1071,7 +1315,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l451"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:451</code></a>
+                                    <a href="../files/utils_api_engine_engine.js.html#l389"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:389</code></a>
                                     </p>
                             
                             
@@ -1082,7 +1326,9 @@
                             
                                     <div class="description">
                                         <p>Preloads the scene to reduces loading time. You can call this method at any time you want.</p>
-                            <p>After calling this method, you still need to launch the scene by <code>Engine.loadScene</code> because the loading logic will not changed. It will be totally fine to call <code>Engine.loadScene</code> at any time even if the preloading is not yet finished, the scene will be launched after loaded automatically.</p>
+                            <p>After calling this method, you still need to launch the scene by <code>Engine.loadScene</code> because the loading logic
+                            will not changed. It will be totally fine to call <code>Engine.loadScene</code> at any time even if the preloading is not
+                            yet finished, the scene will be launched after loaded automatically.</p>
                             
                                     </div>
                             
@@ -1146,7 +1392,7 @@
                                 </div>
                             </div>
                             <a name="method_step" class="anchor-link"></a>
-                            <div class="method item">
+                            <div class="method item inherited">
                                 <h3 class="name"><code>step</code>
                             
                                     <span class="paren">()</span>
@@ -1161,9 +1407,12 @@
                                 </h3>
                             
                                 <div class="meta">
-                                            <p>
-                                            Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l276"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:276</code></a>
+                                        <p>Inherited from
+                                        <a href="../classes/Playable.html#method_step" class="type">
+                                            Playable
+                                        </a>
+                                        but overwritten in
+                                    <a href="../files/utils_api_engine_engine.js.html#l443"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:443</code></a>
                                     </p>
                             
                             
@@ -1182,7 +1431,7 @@
                                 </div>
                             </div>
                             <a name="method_stop" class="anchor-link"></a>
-                            <div class="method item">
+                            <div class="method item inherited">
                                 <h3 class="name"><code>stop</code>
                             
                                     <span class="paren">()</span>
@@ -1197,9 +1446,12 @@
                                 </h3>
                             
                                 <div class="meta">
-                                            <p>
-                                            Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l235"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:235</code></a>
+                                        <p>Inherited from
+                                        <a href="../classes/Playable.html#method_stop" class="type">
+                                            Playable
+                                        </a>
+                                        but overwritten in
+                                    <a href="../files/utils_api_engine_engine.js.html#l435"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:435</code></a>
                                     </p>
                             
                             
@@ -1236,7 +1488,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_engine_engine.js.html#l306"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:306</code></a>
+                                    <a href="../files/utils_api_engine_engine.js.html#l243"><code>utils&#x2F;api&#x2F;engine&#x2F;engine.js:243</code></a>
                                     </p>
                             
                             

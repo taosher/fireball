@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.3.0</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -45,6 +45,7 @@
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
                             <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
+                            <li><a class="type" href="../classes/AssetBundleBase.html">AssetBundleBase</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
@@ -77,8 +78,11 @@
                             <li><a class="type" href="../classes/MouseEvent.html">MouseEvent</a></li>
                             <li><a class="type" href="../classes/NoScale.html">NoScale</a></li>
                             <li><a class="type" href="../classes/Path.html">Path</a></li>
+                            <li><a class="type" href="../classes/Playable.html">Playable</a></li>
                             <li><a class="type" href="../classes/Rect.html">Rect</a></li>
                             <li><a class="type" href="../classes/Renderer.html">Renderer</a></li>
+                            <li><a class="type" href="../classes/Resources.html">Resources</a></li>
+                            <li><a class="type" href="../classes/ResourcesBundle.html">ResourcesBundle</a></li>
                             <li><a class="type" href="../classes/Screen.html">Screen</a></li>
                             <li><a class="type" href="../classes/Screen.ContainerStrategy.html">Screen.ContainerStrategy</a></li>
                             <li><a class="type" href="../classes/Screen.ContentStrategy.html">Screen.ContentStrategy</a></li>
@@ -203,7 +207,7 @@
                         }
                         else {
                             var klass = obj.constructor;
-                            if (!Fire._isFireClass(klass)) {
+                            if (! Fire._isFireClass(klass)) {
                                 // primitive javascript object
                                 for (var key in obj) {
                                     //Fire.log(key);
@@ -362,16 +366,22 @@
                                                     // If it will lead to performance degradations in V8, we just need to save ids to another table.
                             self._objsToResetId.push(obj);
                 
+                            // get FObject data
                             var data = {};
                             self.serializedList.push(data);
                 
-                            // get FObject data
                             var type = _getType(obj);
                             if (type) {
                                 data.__type__ = type;
                             }
-                            _enumerateObject(self, obj, data);
-                            data._objFlags &amp;= PersistentMask;
+                            if (! obj._serialize) {
+                                _enumerateObject(self, obj, data);
+                                data._objFlags &amp;= PersistentMask;
+                            }
+                            else {
+                                //obj._objFlags &amp;= PersistentMask;
+                                data.content = obj._serialize(self._exporting);
+                            }
                 
                             return { __id__: id };
                         }

@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.3.0</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -45,6 +45,7 @@
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
                             <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
+                            <li><a class="type" href="../classes/AssetBundleBase.html">AssetBundleBase</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
@@ -77,8 +78,11 @@
                             <li><a class="type" href="../classes/MouseEvent.html">MouseEvent</a></li>
                             <li><a class="type" href="../classes/NoScale.html">NoScale</a></li>
                             <li><a class="type" href="../classes/Path.html">Path</a></li>
+                            <li><a class="type" href="../classes/Playable.html">Playable</a></li>
                             <li><a class="type" href="../classes/Rect.html">Rect</a></li>
                             <li><a class="type" href="../classes/Renderer.html">Renderer</a></li>
+                            <li><a class="type" href="../classes/Resources.html">Resources</a></li>
+                            <li><a class="type" href="../classes/ResourcesBundle.html">ResourcesBundle</a></li>
                             <li><a class="type" href="../classes/Screen.html">Screen</a></li>
                             <li><a class="type" href="../classes/Screen.ContainerStrategy.html">Screen.ContainerStrategy</a></li>
                             <li><a class="type" href="../classes/Screen.ContentStrategy.html">Screen.ContentStrategy</a></li>
@@ -209,6 +213,27 @@
                      * @type number
                      */
                     Sprite.prop(&#x27;rawHeight&#x27;, 0, Fire.Integer_Obsoleted, Fire.HideInInspector);
+                
+                    /**
+                     * Use pixel-level hit testing.
+                     * @property pixelLevelHitTest
+                     * @type boolean
+                     * @default false
+                     */
+                    Sprite.prop(&#x27;pixelLevelHitTest&#x27;, false, Fire.Tooltip(&#x27;Use pixel-level hit testing.&#x27;));
+                
+                    /**
+                     * The highest alpha channel value that is considered opaque for hit test. [0, 1]
+                     * @property alphaThreshold
+                     * @type number
+                     * @default 0.1
+                     */
+                    Sprite.prop(&#x27;alphaThreshold&#x27;, 0.1,
+                        Fire.Watch(&#x27;pixelLevelHitTest&#x27;, function (obj, propEL) {
+                            propEL.disabled = !obj.pixelLevelHitTest;
+                        }),
+                        Fire.Tooltip(&#x27;The highest alpha channel value that is considered opaque for hit test.&#x27;)
+                    );
                 
                     /**
                      * @property rotatedWidth

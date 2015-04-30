@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.3.0</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -45,6 +45,7 @@
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
                             <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
+                            <li><a class="type" href="../classes/AssetBundleBase.html">AssetBundleBase</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
@@ -77,8 +78,11 @@
                             <li><a class="type" href="../classes/MouseEvent.html">MouseEvent</a></li>
                             <li><a class="type" href="../classes/NoScale.html">NoScale</a></li>
                             <li><a class="type" href="../classes/Path.html">Path</a></li>
+                            <li><a class="type" href="../classes/Playable.html">Playable</a></li>
                             <li><a class="type" href="../classes/Rect.html">Rect</a></li>
                             <li><a class="type" href="../classes/Renderer.html">Renderer</a></li>
+                            <li><a class="type" href="../classes/Resources.html">Resources</a></li>
+                            <li><a class="type" href="../classes/ResourcesBundle.html">ResourcesBundle</a></li>
                             <li><a class="type" href="../classes/Screen.html">Screen</a></li>
                             <li><a class="type" href="../classes/Screen.ContainerStrategy.html">Screen.ContainerStrategy</a></li>
                             <li><a class="type" href="../classes/Screen.ContentStrategy.html">Screen.ContentStrategy</a></li>
@@ -232,6 +236,10 @@
                                 </li>
                                 <li class="index-item method">
                                     <a href="#method_getTranslation">getTranslation</a>
+                
+                                </li>
+                                <li class="index-item method">
+                                    <a href="#method_getTRS">getTRS</a>
                 
                                 </li>
                                 <li class="index-item method">
@@ -734,7 +742,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_core_matrix23.js.html#l242"><code>utils&#x2F;api&#x2F;core&#x2F;matrix23.js:242</code></a>
+                                    <a href="../files/utils_api_core_matrix23.js.html#l273"><code>utils&#x2F;api&#x2F;core&#x2F;matrix23.js:273</code></a>
                                     </p>
                             
                             
@@ -855,7 +863,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_core_matrix23.js.html#l257"><code>utils&#x2F;api&#x2F;core&#x2F;matrix23.js:257</code></a>
+                                    <a href="../files/utils_api_core_matrix23.js.html#l288"><code>utils&#x2F;api&#x2F;core&#x2F;matrix23.js:288</code></a>
                                     </p>
                             
                             
@@ -875,6 +883,55 @@
                             
                                             <div class="returns-description">
                                                         <span class="type"><a href="../classes/Vec2.html" class="crosslink">Vec2</a></span>:
+                                            </div>
+                                        </div>
+                            
+                                </div>
+                            </div>
+                            <a name="method_getTRS" class="anchor-link"></a>
+                            <div class="method item">
+                                <h3 class="name"><code>getTRS</code>
+                            
+                                    <span class="paren">()</span>
+                            
+                                    <span class="returns-inline">
+                                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>
+                                    </span>
+                            
+                            
+                            
+                            
+                            
+                            
+                            
+                                </h3>
+                            
+                                <div class="meta">
+                                            <p>
+                                            Defined in
+                                    <a href="../files/utils_api_core_matrix23.js.html#l224"><code>utils&#x2F;api&#x2F;core&#x2F;matrix23.js:224</code></a>
+                                    </p>
+                            
+                            
+                            
+                                </div>
+                            
+                                <div class="extended-detail">
+                            
+                                    <div class="description">
+                                        <p>Extract translation, rotation and scaling component from this matrix.
+                            Only support negative(mirroring) scaling in some special case.</p>
+                            
+                                    </div>
+                            
+                            
+                                        <div class="returns">
+                                            <h4>Returns:</h4>
+                            
+                                            <div class="returns-description">
+                                                        <span class="type"><a href="https://developer.mozilla.org/en/JavaScript/Reference/Global_Objects/Object" class="crosslink external" target="_blank">Object</a></span>:
+                                                    <p>{translation: Vec2, rotation: number, scale: Vec2}</p>
+                            
                                             </div>
                                         </div>
                             
@@ -1071,7 +1128,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_core_matrix23.js.html#l269"><code>utils&#x2F;api&#x2F;core&#x2F;matrix23.js:269</code></a>
+                                    <a href="../files/utils_api_core_matrix23.js.html#l300"><code>utils&#x2F;api&#x2F;core&#x2F;matrix23.js:300</code></a>
                                     </p>
                             
                             
@@ -1140,7 +1197,7 @@
                                 <div class="meta">
                                             <p>
                                             Defined in
-                                    <a href="../files/utils_api_core_matrix23.js.html#l224"><code>utils&#x2F;api&#x2F;core&#x2F;matrix23.js:224</code></a>
+                                    <a href="../files/utils_api_core_matrix23.js.html#l253"><code>utils&#x2F;api&#x2F;core&#x2F;matrix23.js:253</code></a>
                                     </p>
                             
                             
@@ -1151,6 +1208,7 @@
                             
                                     <div class="description">
                                         <p>Set scaling of this matrix.</p>
+                            <p>NOTE: Can not scale negative scaling (mirroring) and zero scaling matrix.</p>
                             
                                     </div>
                             

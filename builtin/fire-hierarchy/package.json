@@ -1,13 +1,13 @@
 {
   "name": "fire-hierarchy",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Fireball builtin hierarchy view",
   "author": "Firebox Technology",
   "fireball": {
     "main": "editor/main.js",
     "menus": [
       {
-        "path": "Fireball/Panels/Hierarchy",
+        "path": "View/Panels/Hierarchy",
         "message": "fire-hierarchy:open"
       }
     ],

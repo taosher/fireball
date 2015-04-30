@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.3.0</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -45,6 +45,7 @@
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
                             <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
+                            <li><a class="type" href="../classes/AssetBundleBase.html">AssetBundleBase</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
@@ -77,8 +78,11 @@
                             <li><a class="type" href="../classes/MouseEvent.html">MouseEvent</a></li>
                             <li><a class="type" href="../classes/NoScale.html">NoScale</a></li>
                             <li><a class="type" href="../classes/Path.html">Path</a></li>
+                            <li><a class="type" href="../classes/Playable.html">Playable</a></li>
                             <li><a class="type" href="../classes/Rect.html">Rect</a></li>
                             <li><a class="type" href="../classes/Renderer.html">Renderer</a></li>
+                            <li><a class="type" href="../classes/Resources.html">Resources</a></li>
+                            <li><a class="type" href="../classes/ResourcesBundle.html">ResourcesBundle</a></li>
                             <li><a class="type" href="../classes/Screen.html">Screen</a></li>
                             <li><a class="type" href="../classes/Screen.ContainerStrategy.html">Screen.ContainerStrategy</a></li>
                             <li><a class="type" href="../classes/Screen.ContentStrategy.html">Screen.ContentStrategy</a></li>
@@ -133,6 +137,7 @@
                         /**
                          * @property _name
                          * @type string
+                         * @default &quot;&quot;
                          * @private
                          */
                         this._name = &#x27;&#x27;;
@@ -140,6 +145,7 @@
                         /**
                          * @property _objFlags
                          * @type number
+                         * @default 0
                          * @private
                          */
                         this._objFlags = 0;
@@ -172,33 +178,34 @@
                         enumerable: false
                     });
                 
-                    // instance
+                    // member
+                
+                    var prototype = FObject.prototype;
                 
                     /**
                      * The name of the object.
                      * @property name
                      * @type string
+                     * @default &quot;&quot;
                      */
-                    Object.defineProperty(FObject.prototype, &#x27;name&#x27;, {
-                        get: function () {
+                    JS.getset(prototype, &#x27;name&#x27;,
+                        function () {
                             return this._name;
                         },
-                        set: function (value) {
+                        function (value) {
                             this._name = value;
-                        },
-                        enumerable: false
-                    });
+                        }
+                    );
                 
                     /**
                      * Indicates whether the object is not yet destroyed
                      * @property isValid
                      * @type boolean
                      * @default true
+                     * @readOnly
                      */
-                    Object.defineProperty(FObject.prototype, &#x27;isValid&#x27;, {
-                        get: function () {
-                            return !(this._objFlags &amp; Destroyed);
-                        }
+                    JS.get(prototype, &#x27;isValid&#x27;, function () {
+                        return !(this._objFlags &amp; Destroyed);
                     });
                 
                     /**
@@ -209,7 +216,7 @@
                      * @method destroy
                      * @return {boolean} whether it is the first time the destroy being called
                      */
-                    FObject.prototype.destroy = function () {
+                    prototype.destroy = function () {
                         if (this._objFlags &amp; Destroyed) {
                             Fire.error(&#x27;object already destroyed&#x27;);
                             return false;
@@ -230,7 +237,7 @@
                      * @method _destruct
                      * @private
                      */
-                    FObject.prototype._destruct = function () {
+                    prototype._destruct = function () {
                         // 允许重载destroy
                         // 所有可枚举到的属性，都会被清空
                         for (var key in this) {
@@ -254,12 +261,13 @@
                     };
                 
                     /**
+                     * Called before the object being destroyed.
                      * @method _onPreDestroy
                      * @private
                      */
-                    FObject.prototype._onPreDestroy = null;
+                    prototype._onPreDestroy = null;
                 
-                    FObject.prototype._destroyImmediate = function () {
+                    prototype._destroyImmediate = function () {
                         if (this._objFlags &amp; Destroyed) {
                             Fire.error(&#x27;object already destroyed&#x27;);
                             return;
@@ -273,6 +281,27 @@
                         // mark destroyed
                         this._objFlags |= Destroyed;
                     };
+                
+                    // @ifdef EDITOR
+                    /**
+                     * The customized serialization for this object. (Editor Only)
+                     * @method _serialize
+                     * @param {boolean} exporting
+                     * @return {object} the serialized json data object
+                     * @private
+                     */
+                    prototype._serialize = null;
+                    // @endif
+                
+                    /**
+                     * Init this object from the custom serialized data.
+                     * @method _deserialize
+                     * @param {object} data - the serialized json data
+                     * @param {_Deserializer} ctx
+                     * @param {object} target
+                     * @private
+                     */
+                    prototype._deserialize = null;
                 
                     return FObject;
                 })();

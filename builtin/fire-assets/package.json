@@ -1,13 +1,13 @@
 {
   "name": "fire-assets",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Fireball builtin assets explorer",
   "author": "Firebox Technology",
   "fireball": {
     "main": "editor/main.js",
     "menus": [
       {
-        "path": "Fireball/Panels/Assets",
+        "path": "View/Panels/Assets",
         "message": "fire-assets:open"
       }
     ],
@@ -29,7 +29,12 @@
           "selection:asset:unselected",
           "selection:asset:activated",
           "selection:asset:deactivated"
-        ]
+        ],
+        "profiles": {
+          "local": {
+            "CollapsesStatus": []
+          }
+        }
       }
     }
   }

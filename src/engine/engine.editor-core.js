@@ -48,60 +48,65 @@ Editor._AssetsWatcher = AssetsWatcher;
 var editorCallback = {
 
 
-    onEnginePlayed: null,
-    onEngineStopped: null,
-    onEnginePaused: null,
+    onEnginePlayed: function () {},
+    onEngineStopped: function () {},
+    onEnginePaused: function () {},
 
     // This will be called before component callbacks
-    onEntityCreated: null,
+    onEntityCreated: function () {},
 
     /**
      * removes an entity and all its children from scene, this method will NOT be called if it is removed by hierarchy.
      * @param {Entity} entity - the entity to remove
      * @param {boolean} isTopMost - indicates whether it is the most top one among the entities who will be deleted in one operation
      */
-    onEntityRemoved: null,
+    onEntityRemoved: function () {},
 
-    onEntityParentChanged: null,
+    onEntityParentChanged: function () {},
 
     /**
      * @param {Entity} entity
      * @param {number} oldIndex
      * @param {number} newIndex
      */
-    onEntityIndexChanged: null,
+    onEntityIndexChanged: function () {},
 
-    onEntityRenamed: null,
-
-    /**
-     * @param {Scene} scene
-     */
-    onStartUnloadScene: null,
+    onEntityRenamed: function () {},
 
     /**
      * @param {Scene} scene
      */
-    onSceneLaunched: null,
+    onStartUnloadScene: function () {},
+
+    /**
+     * @param {Scene} scene
+     */
+    onSceneLaunched: function () {},
+
+    /**
+     * @param {Scene} scene
+     */
+    onBeforeActivateScene: function () {},
 
     ///**
     // * @param {Scene} scene
     // */
     //onSceneLoaded: null,
 
-    onComponentEnabled: null,
-    onComponentDisabled: null,
+    onComponentEnabled: function () {},
+    onComponentDisabled: function () {},
 
     /**
      * @param {Entity} entity
      * @param {Component} component
      */
-    onComponentAdded: null,
+    onComponentAdded: function () {},
 
     /**
      * @param {Entity} entity
      * @param {Component} component
      */
-    onComponentRemoved: null
+    onComponentRemoved: function () {}
 };
 
 // Mockers for editor-core
@@ -174,8 +179,25 @@ Fire.ContentStrategyType = ContentStrategyType;
 
 var __TESTONLY__ = {};
 Fire.__TESTONLY__ = __TESTONLY__;
-Fire._Runtime = {};
-JS.getset(Fire._Runtime, 'RenderContext',
+function callInNextTick (callback, p1, p2) {
+    if (callback) {
+        setTimeout(function () {
+            callback(p1, p2);
+        }, 1);
+    }
+}
+
+
+var Runtime = {
+    init: function () {
+        //
+    },
+    render: function (renderContext) {
+        Engine._scene.render(renderContext || Engine._renderContext);
+    }
+};
+
+JS.getset(Runtime, 'RenderContext',
     function () {
         return RenderContext;
     },
@@ -183,6 +205,8 @@ JS.getset(Fire._Runtime, 'RenderContext',
         RenderContext = value;
     }
 );
+
+Fire._Runtime = Runtime;
 
 /**
  * !#en The interface to get time information from Fireball.
@@ -245,13 +269,16 @@ var Time = (function () {
 
     /**
      * @method Fire.Time._update
+     * @param {number} timestamp
      * @param {boolean} [paused=false] if true, only realTime will be updated
+     * @param {number} [maxDeltaTime=Time.maxDeltaTime]
      * @private
      */
-    Time._update = function (timestamp, paused) {
+    Time._update = function (timestamp, paused, maxDeltaTime) {
         if (!paused) {
+            maxDeltaTime = maxDeltaTime || Time.maxDeltaTime;
             var delta = timestamp - lastUpdateTime;
-            delta = Math.min(Time.maxDeltaTime, delta);
+            delta = Math.min(maxDeltaTime, delta);
             lastUpdateTime = timestamp;
 
             ++Time.frameCount;
@@ -441,6 +468,11 @@ var Event = (function () {
 
 Fire.Event = Event;
 
+function CustomEvent (type, bubbles) {
+    Event.call(this, type, bubbles);
+    this.detail = null;
+}
+
 var EventListeners = (function () {
 
     /**
@@ -458,14 +490,14 @@ var EventListeners = (function () {
         var list = this._callbackTable[event.type];
         if (list && list.length > 0) {
             if (list.length === 1) {
-                list[0](event);
+                list[0].call(event.currentTarget, event);
                 return;
             }
             var endIndex = list.length - 1;
             var lastFunc = list[endIndex];
             for (var i = 0; i <= endIndex; ++i) {
                 var callingFunc = list[i];
-                callingFunc(event);
+                callingFunc.call(event.currentTarget, event);
                 if (event._propagationImmediateStopped || i === endIndex) {
                     break;
                 }
@@ -714,6 +746,25 @@ var EventTarget = (function () {
         }
     };
 
+    /**
+     * Send an event to this object directly, this method will not propagate the event to any other objects.
+     * The event will be created from the supplied message, you can get the "detail" argument from event.detail.
+     *
+     * @method emit
+     * @param {string} message - the message to send
+     * @param {any} [detail] - whatever argument the message needs
+     */
+    EventTarget.prototype.emit = function (message, detail) {
+        if ( typeof message === 'string' ) {
+            var event = new CustomEvent(message);
+            event.detail = detail;
+            this._doSendEvent(event);
+        }
+        else {
+            Fire.error('The message must be provided');
+        }
+    };
+
     ///**
     // * Send an event to this object directly, this method will not propagate the event to any other objects.
     // *
@@ -771,6 +822,133 @@ var EventTarget = (function () {
 
 Fire.EventTarget = EventTarget;
 
+var Playable = (function () {
+    /**
+     * @class Playable
+     * @constructor
+     */
+    function Playable () {
+        this._isPlaying = false;
+        this._isPaused = false;
+        this._stepOnce = false;
+    }
+
+    //JS.extend(Playable, EventTarget);
+
+    var prototype = Playable.prototype;
+
+    /**
+     * Is playing or paused in play mode?
+     * @property isPlaying
+     * @type {boolean}
+     * @default false
+     * @readOnly
+     */
+    JS.get(prototype, 'isPlaying', function () {
+        return this._isPlaying;
+    }, true);
+
+    /**
+     * Is currently paused? This can be true even if in edit mode(isPlaying == false).
+     * @property isPaused
+     * @type {boolean}
+     * @default false
+     * @readOnly
+     */
+    JS.get(prototype, 'isPaused', function () {
+        return this._isPaused;
+    }, true);
+
+    // virtual
+
+    var virtual = function () {};
+    /**
+     * @method onPlay
+     * @private
+     */
+    prototype.onPlay = virtual;
+    /**
+     * @method onPause
+     * @private
+     */
+    prototype.onPause = virtual;
+    /**
+     * @method onResume
+     * @private
+     */
+    prototype.onResume = virtual;
+    /**
+     * @method onStop
+     * @private
+     */
+    prototype.onStop = virtual;
+    /**
+     * @method onError
+     * @param {string} errorCode
+     * @private
+     */
+    prototype.onError = virtual;
+
+    // public
+
+    /**
+     * @method play
+     */
+    prototype.play = function () {
+        if (this._isPlaying) {
+            if (this._isPaused) {
+                this._isPaused = false;
+                this.onResume();
+                //this.emit('resume');
+            }
+            else {
+                this.onError('already-playing');
+                //this.emit('error', 'already-play');
+            }
+        }
+        else {
+            this._isPlaying = true;
+            this.onPlay();
+            //this.emit('play');
+        }
+    };
+
+    /**
+     * @method stop
+     */
+    prototype.stop = function () {
+        if (this._isPlaying) {
+            this._isPlaying = false;
+            this._isPaused = false;
+            //this.emit('stop');
+            this.onStop();
+        }
+    };
+
+    /**
+     * @method pause
+     */
+    prototype.pause = function () {
+        this._isPaused = true;
+        //this.emit('pause');
+        this.onPause();
+    };
+
+    /**
+     * Perform a single frame step.
+     * @method step
+     */
+    prototype.step = function () {
+        this.pause();
+        this._stepOnce = true;
+        if (!this._isPlaying) {
+            this.play();
+        }
+    };
+
+    return Playable;
+})();
+
 /**
  * The abstract renderer class which will be totally replaced with runtime implementation.
  * here just used as the mocker for unit tests.
@@ -804,6 +982,16 @@ Fire.JS.get(RenderContext.prototype, 'canvas',
         return this._canvas;
     }
 );
+
+/**
+ * The canvas's parent node in dom.
+ * @property _container
+ * @type {HTMLElement}
+ * @private
+ */
+JS.get(RenderContext.prototype, 'container', function () {
+    return this.canvas.parentNode;
+});
 
 //Object.defineProperty(RenderContext.prototype, 'width', {
 //    get: function () {
@@ -900,6 +1088,7 @@ Fire.JS.mixin(RenderContext.prototype, {
      */
     remove: function (target) {},
 
+    onPreRender: function () {},
     render: function () {},
 
     /**
@@ -909,7 +1098,7 @@ Fire.JS.mixin(RenderContext.prototype, {
      */
     updateTransform: function (target, matrix) {},
 
-    updateSpriteColor: function (target) {},
+    updateColor: function (target) {},
 
     /**
      * @param target {SpriteRenderer}
@@ -923,7 +1112,7 @@ Fire.JS.mixin(RenderContext.prototype, {
     checkMatchCurrentScene: function () {}
 });
 
-Fire._Runtime.RenderContext = RenderContext;
+Runtime.RenderContext = RenderContext;
 
 var Component = (function () {
 
@@ -1161,17 +1350,13 @@ var Component = (function () {
         if ( enable ) {
             if ( !(self._objFlags & IsEditorOnEnabledCalled) ) {
                 self._objFlags |= IsEditorOnEnabledCalled;
-                if ( editorCallback.onComponentEnabled ) {
-                    editorCallback.onComponentEnabled(self);
-                }
+                editorCallback.onComponentEnabled(self);
             }
         }
         else {
             if ( self._objFlags & IsEditorOnEnabledCalled ) {
                 self._objFlags &= ~IsEditorOnEnabledCalled;
-                if ( editorCallback.onComponentDisabled ) {
-                    editorCallback.onComponentDisabled(self);
-                }
+                editorCallback.onComponentDisabled(self);
             }
         }
         if ( !(Fire.Engine.isPlaying || Fire.attr(self, 'executeInEditMode')) ) {
@@ -1488,7 +1673,7 @@ var Transform = (function () {
             if ( !isNaN(value) ) {
                 this._position.x = value;
                 // notify change
-                this._position = this._position;
+                this.position = this._position;
             }
             else {
                 Fire.error(ERR_NaN, 'new x');
@@ -1510,7 +1695,7 @@ var Transform = (function () {
             if ( !isNaN(value) ) {
                 this._position.y = value;
                 // notify change
-                this._position = this._position;
+                this.position = this._position;
             }
             else {
                 Fire.error(ERR_NaN, 'new y');
@@ -1572,7 +1757,7 @@ var Transform = (function () {
                     this._position.x = value;
                 }
                 // notify change
-                this._position = this._position;
+                this.position = this._position;
                 //将来优化做好了以后，上面的代码可以简化成下面这些
                 //var pos = this.worldPosition;
                 //if (pos.x !== value) {
@@ -1611,7 +1796,7 @@ var Transform = (function () {
                     this._position.y = value;
                 }
                 // notify change
-                this._position = this._position;
+                this.position = this._position;
             }
             else {
                 Fire.error(ERR_NaN, 'new worldY');
@@ -1708,7 +1893,7 @@ var Transform = (function () {
             if ( !isNaN(value) ) {
                 this._scale.x = value;
                 // notify change
-                this._scale = this._scale;
+                this.scale = this._scale;
             }
             else {
                 Fire.error(ERR_NaN, 'new scaleX');
@@ -1730,7 +1915,7 @@ var Transform = (function () {
             if ( !isNaN(value) ) {
                 this._scale.y = value;
                 // notify change
-                this._scale = this._scale;
+                this.scale = this._scale;
             }
             else {
                 Fire.error(ERR_NaN, 'new scaleY');
@@ -2180,7 +2365,7 @@ var SpriteRenderer = (function () {
         function (value) {
             this._color = value;
             if (this._hasRenderObj) {
-                Engine._renderContext.updateSpriteColor(this);
+                Engine._renderContext.updateColor(this);
             }
         }
     );
@@ -2412,6 +2597,25 @@ var BitmapText = (function () {
 
     BitmapText.prop('_anchor', Fire.TextAnchor.midCenter, Fire.HideInInspector);
 
+
+    /**
+     * The color of the text.
+     * @property color
+     * @type {Color}
+     * @default Fire.Color.white
+     */
+    BitmapText.getset('color',
+        function () {
+            return this._color;
+        },
+        function (value) {
+            this._color = value;
+            Engine._renderContext.updateColor(this, value);
+        }
+    );
+
+    BitmapText.prop('_color', Fire.Color.white, Fire.HideInInspector);
+
     /**
      * The anchor point of the text.
      * @property anchor
@@ -2476,7 +2680,7 @@ var BitmapText = (function () {
     BitmapText.prototype.onPreRender = function () {
         this.getSelfMatrix(tempMatrix);
         tempMatrix.prepend(this.transform._worldTransform);
-        RenderContext.updateBitmapTextTransform(this, tempMatrix);
+        Engine._curRenderContext.updateBitmapTextTransform(this, tempMatrix);
     };
 
     BitmapText.prototype.getSelfMatrix = function (out) {
@@ -2725,7 +2929,7 @@ var Text = (function () {
         onPreRender: function () {
             this.getSelfMatrix(tempMatrix);
             tempMatrix.prepend(this.transform._worldTransform);
-            RenderContext.updateTextTransform(this, tempMatrix);
+            Engine._curRenderContext.updateTextTransform(this, tempMatrix);
         }
     });
 
@@ -2973,6 +3177,10 @@ var Camera = Fire.Class({
     },
 
     _calculateTransform: function (out_matrix, out_worldPos) {
+        // TODO: 等 fireball-x/dev#388 完成后去掉该保护代码
+        if (!this._contentStrategyInst) {
+            this._contentStrategyInst = Fire.Screen.ContentStrategy.fromType(this._contentStrategy);
+        }
         var viewportInfo = this.viewportInfo;
         var scale = viewportInfo.scale;
         var viewport = viewportInfo.viewport;
@@ -3066,7 +3274,10 @@ var InteractionContext = (function () {
                     var obb = obbMap[entity.id];
                     var polygon = new Fire.Polygon(obb);
                     if (polygon.contains(worldPosition)) {
-                        return entity;
+                        var chackHit = entity.hitTest(worldPosition.x, worldPosition.y);
+                        if (chackHit) {
+                            return entity;
+                        }
                     }
                 }
             }
@@ -3142,10 +3353,12 @@ var Entity = Fire.Class({
 
     constructor: function () {
         var name = arguments[0];
-
         this._name = typeof name !== 'undefined' ? name : 'New Entity';
-        this._objFlags |= Entity._defaultFlags;
 
+        var editorOptions = arguments[1];
+        if (editorOptions) {
+            this._objFlags |= editorOptions.flags;
+        }
         if (Fire._isCloning) {
             // create by deserializer or instantiating
 
@@ -3173,12 +3386,8 @@ var Entity = Fire.Class({
                 // activate componet
                 transform._onEntityActivated(true);     // 因为是刚刚创建，所以 activeInHierarchy 肯定为 true
 
-                if (editorCallback.onEntityCreated) {
-                    editorCallback.onEntityCreated(this);
-                }
-                if (editorCallback.onComponentAdded) {
-                    editorCallback.onComponentAdded(this, transform);
-                }
+                editorCallback.onEntityCreated(this, editorOptions);
+                editorCallback.onComponentAdded(this, transform);
             }
         }
     },
@@ -3191,9 +3400,7 @@ var Entity = Fire.Class({
             },
             set: function (value) {
                 this._name = value;
-                if (editorCallback.onEntityRenamed) {
-                    editorCallback.onEntityRenamed(this);
-                }
+                editorCallback.onEntityRenamed(this);
             }
         },
 
@@ -3294,9 +3501,7 @@ var Entity = Fire.Class({
                         this._onHierarchyChanged(oldParent);
                     }
                     Engine._renderContext.onEntityParentChanged(this, oldParent);
-                    if (editorCallback.onEntityParentChanged) {
-                        editorCallback.onEntityParentChanged(this);
-                    }
+                    editorCallback.onEntityParentChanged(this);
                     //this._onHierarchyChanged(this, oldParent);
                 }
             }
@@ -3377,9 +3582,7 @@ var Entity = Fire.Class({
         var isTopMost = !(parent && (parent._objFlags & Destroying));
         if (isTopMost) {
             Engine._renderContext.onEntityRemoved(this);
-            if (editorCallback.onEntityRemoved) {
-                editorCallback.onEntityRemoved(this/*, isTopMost*/);
-            }
+            editorCallback.onEntityRemoved(this/*, isTopMost*/);
         }
         // destroy components
         for (var c = 0; c < this._components.length; ++c) {
@@ -3473,9 +3676,7 @@ var Entity = Fire.Class({
             component._onEntityActivated(true);
         }
 
-        if (editorCallback.onComponentAdded) {
-            editorCallback.onComponentAdded(this, component);
-        }
+        editorCallback.onComponentAdded(this, component);
         return component;
     },
 
@@ -3520,9 +3721,7 @@ var Entity = Fire.Class({
             if (i !== -1) {
                 this._components.splice(i, 1);
                 component.entity = null;
-                if (editorCallback.onComponentRemoved) {
-                    editorCallback.onComponentRemoved(this, component);
-                }
+                editorCallback.onComponentRemoved(this, component);
             }
             else if (component.entity !== this) {
                 Fire.error("Component not owned by this entity");
@@ -3681,9 +3880,7 @@ var Entity = Fire.Class({
             }
             // callback
             Engine._renderContext.onEntityIndexChanged(this, oldIndex, index);
-            if (editorCallback.onEntityIndexChanged) {
-                editorCallback.onEntityIndexChanged(this, oldIndex, index);
-            }
+            editorCallback.onEntityIndexChanged(this, oldIndex, index);
             //this._onHierarchyChanged(this, this.parent);
         }
     },
@@ -3706,6 +3903,58 @@ var Entity = Fire.Class({
         this.setSiblingIndex(-1);
     },
 
+    /**
+     * Tests whether the entity intersects the specified point in world coordinates
+     * This ignores the alpha of the renderer.
+     *
+     * @method hitTest
+     * @param {number} worldX The world X position to check.
+     * @param {number} worldY The world Y position to check.
+     * @return {boolean} A Boolean indicating whether the Entity intersect the specified world position.
+     */
+    hitTest: function (worldX, worldY) {
+        var renderer = this.getComponent(Fire.SpriteRenderer);
+        if (! renderer || ! renderer.sprite) {
+            return false;
+        }
+
+        var worldMatrix = this.transform.getLocalToWorldMatrix();
+        var spriteMatrix = new Fire.Matrix23();
+        renderer.getSelfMatrix(spriteMatrix);
+        // TODO getSelfRenderMatrix
+        spriteMatrix.a = renderer.width / renderer.sprite.width;
+        spriteMatrix.d = renderer.height / renderer.sprite.height;
+        if (renderer.sprite.rotated) {
+            spriteMatrix.b = spriteMatrix.d;
+            spriteMatrix.c = -spriteMatrix.a;
+            spriteMatrix.a = 0;
+            spriteMatrix.d = 0;
+            spriteMatrix.ty -= renderer.height;
+        }
+        var matrix = spriteMatrix.prepend(worldMatrix);
+        matrix.invert();
+        var point = matrix.transformPoint(new Fire.Vec2(worldX, worldY));
+        // 因为世界坐标是Y轴向上，图片是Y轴向下，所以这边进行图片反转
+        point.y = -point.y;
+        point.x += renderer.sprite.x;
+        point.y += renderer.sprite.y;
+
+        var texture = renderer.sprite.texture;
+        if (! texture) {
+            return false;
+        }
+
+        if (0 < point.x && point.x < texture.width  &&
+            0 < point.y && point.y < texture.height) {
+            var alphaThreshold = renderer.sprite.alphaThreshold;
+            if (renderer.sprite.pixelLevelHitTest && alphaThreshold > 0) {
+                return texture.getPixel(point.x, point.y).a >= alphaThreshold;
+            }
+            return true;
+        }
+        return false;
+    },
+
     ////////////////////////////////////////////////////////////////////
     // other methods
     ////////////////////////////////////////////////////////////////////
@@ -3720,6 +3969,12 @@ var Entity = Fire.Class({
         var countBefore = this._components.length;
         for (var c = 0; c < countBefore; ++c) {
             var component = this._components[c];
+            if (! (component instanceof Fire.Component)) {
+                Fire.error('Sorry, one of entity [%s]\'s component is corrupted! The component which original index is %s has been removed.\nSee DevTools for corrupted value.', this.name, c);
+                console.log('Corrupted component value:', component);
+                this._removeComponent(component);
+                continue;
+            }
             component._onEntityActivated(value);
         }
         // activate children recursively
@@ -3777,9 +4032,7 @@ var Entity = Fire.Class({
 
         // invoke callbacks
         Engine._renderContext.onEntityCreated(clone, true);
-        if (editorCallback.onEntityCreated) {
-            editorCallback.onEntityCreated(clone);
-        }
+        editorCallback.onEntityCreated(clone);
         // activate components
         if (clone._active) {
             clone._onActivatedInHierarchy(true);
@@ -3918,11 +4171,18 @@ var Scene = (function () {
         }
     };
 
+    /**
+     * The default scene rendering operation invoked by runtime.
+     * @method render
+     * @param {_Runtime.RenderContext} renderContext
+     */
     Scene.prototype.render = function (renderContext) {
         Engine._curRenderContext = renderContext;
 
         // updateTransform
         this.updateTransform(renderContext.camera || this.camera);
+
+        renderContext.onPreRender();
 
         // call onPreRender
         var entities = this.entities;
@@ -4366,18 +4626,14 @@ var AssetLibrary = (function () {
          */
         _loadAssetByUuid: function (uuid, callback, handle, existingAsset) {
             if (typeof uuid !== 'string') {
-                if (callback) {
-                    callback('[AssetLibrary] uuid must be string', null);
-                }
+                callInNextTick(callback, '[AssetLibrary] uuid must be string', null);
                 return;
             }
             // step 1
             if ( !existingAsset ) {
                 var asset = handle.readCache(uuid);
                 if (asset) {
-                    if (callback) {
-                        callback(null, asset);
-                    }
+                    callInNextTick(callback, null, asset);
                     return;
                 }
             }
@@ -4391,10 +4647,15 @@ var AssetLibrary = (function () {
                 return;
             }
 
-            // step 4
+            // step 3
+
+            if (!_libraryBase) {
+                callInNextTick(callback, 'Cannot load ' + uuid + ' in editor because AssetLibrary not yet initialized!', null);
+                return;
+            }
             var url = _libraryBase + uuid.substring(0, 2) + Fire.Path.sep + uuid;
 
-            // step 5
+            // step 4
             LoadManager.loadByLoader(JsonLoader, url,
                 function (error, json) {
                     function onDeserializedWithDepends (err, asset) {
@@ -4661,6 +4922,304 @@ var AssetLibrary = (function () {
 
 Fire.AssetLibrary = AssetLibrary;
 
+function normalizePath (path) {
+    if (path.slice(0, 2) === './') {
+        path = path.slice(2);
+    }
+    else if (path[0] === '/') {
+        path = path.slice(1);
+    }
+    return path;
+}
+
+/**
+ * AssetBundleBase 为 Resources 提供了上层接口，用于加载资源包里的资源。
+ * @class AssetBundleBase
+ * @constructor
+ */
+function AssetBundleBase () {
+    this._pathToUuid = {};
+}
+
+var GLOB = '**/*';
+var GLOB_LEN = GLOB.length;
+
+AssetBundleBase._hasWildcard = function (path) {
+    var endsWithGlob = path.substr(-GLOB_LEN, GLOB_LEN) === GLOB;
+    return endsWithGlob;
+};
+
+JS.mixin(AssetBundleBase.prototype, {
+
+    /**
+     * Check if the bundle contains a specific object.
+     *
+     * Note:
+     * All asset paths in Fireball use forward slashes, paths using backslashes will not work.
+     *
+     * @method contains
+     * @param {string} path - not support wildcard
+     * @returns {boolean}
+     */
+    contains: function (path) {
+        return (path in this._pathToUuid);
+    },
+
+    /**
+     * Return all asset paths in the bundle.
+     * @method getAllPaths
+     * @returns {string[]}
+     */
+    getAllPaths: function () {
+        return Object.keys(this._pathToUuid);
+    },
+
+    _loadByWildcard: function (path, callback) {
+        var originPath = path.slice(0, -GLOB_LEN);
+        var originPathLen = originPath.length;
+        var results = [];
+        var remain = 0;
+        function onLoad (err, asset) {
+            if (asset) {
+                results.push(asset);
+                if (--remain <= 0) {
+                    if (callback) {
+                        callback(null, results);
+                    }
+                }
+            }
+            else {
+                // error
+                if (callback) {
+                    callback(err, results);
+                    callback = null;
+                }
+            }
+        }
+        var p2u = this._pathToUuid;
+        for (var p in p2u) {
+            if (p.slice(0, originPathLen) === originPath) {
+                ++remain;
+                var uuid = p2u[p];
+                AssetLibrary.loadAsset(uuid, onLoad);
+            }
+        }
+        return remain > 0;
+    },
+
+    /**
+     * Loads asset with path from the bundle asynchronously.
+     *
+     * wildcard:
+     * - 如果路径以 &#42;&#42;&#47;&#42; 作为结尾，则该路径下的所有资源都会被加载，含子文件夹。
+     *   此时 callback 的第二参数将返回数组，如果文件夹下没有资源，数组长度将会是 0。如果加载出错，数组内的元素将不全。
+     *
+     * Note:
+     * All asset paths in Fireball use forward slashes, paths using backslashes will not work.
+     *
+     * @method load
+     * @param {string} path
+     * @param {function} [callback]
+     * @param {string} callback.param error - null or the error info
+     * @param {object} callback.param data - the loaded object or null
+     * @param {boolean} [silence=false] - If true, the callback will not invoked even if asset is not found.
+     * @return {boolean} start loading
+     */
+    load: function (path, callback, silence) {
+        if (! path) {
+            if (! silence) {
+                callInNextTick(callback, 'Argument must be non-nil', null);
+            }
+            return false;
+        }
+        path = normalizePath(path);
+        var uuid = this._pathToUuid[path];
+        if (uuid) {
+            AssetLibrary.loadAsset(uuid, callback);
+            return true;
+        }
+        else if (AssetBundleBase._hasWildcard(path)) {
+            var loading = this._loadByWildcard(path, callback);
+            if ( !loading && !silence ) {
+                callInNextTick(callback, null, []);
+            }
+            return loading;
+        }
+        else if (! silence) {
+            callInNextTick(callback, 'Path not exists', null);
+            return false;
+        }
+    },
+
+    ///**
+    // * The load method that should be implemented by sub class
+    // * @method _doLoad
+    // * @param {string} uuid
+    // * @param {function} callback
+    // * @param {string} callback.param error - null or the error info
+    // * @param {object} callback.param data - the loaded object or null
+    // * @private
+    // */
+    //_loader: function (uuid, callback) {
+    //    callback('NYI', null);
+    //}
+
+    /**
+     * @method _add
+     * @param {string} path - the path to load, should NOT include filename extensions.
+     * @param {string} uuid
+     * @private
+     */
+    _add: function (path, uuid) {
+        //// remove extname
+        //// (can not use slice because length of extname maybe 0)
+        //path = path.substring(0, path - Fire.Path.extname(path).length);
+        this._pathToUuid[path] = uuid;
+    },
+    _removeByPath: function (path) {
+        delete this._pathToUuid[path];
+    }
+    //_removeByUuid: function (uuid) {
+    //    for (var path in this._pathToUuid) {
+    //        if (this._pathToUuid[path] === uuid) {
+    //            delete this._pathToUuid[path];
+    //            return;
+    //        }
+    //    }
+    //}
+});
+
+/**
+ * 这个加载类用于在运行时访问项目里的 Resources 目录
+ * @class ResourcesBundle
+ * @constructor
+ * @extends AssetBundleBase
+ */
+function ResourcesBundle () {
+    AssetBundleBase.call(this);
+}
+JS.extend(ResourcesBundle, AssetBundleBase);
+
+//ResourcesBundle.isResPath = function (path) {
+//    //path = path.toLowerCase();
+//    path = path.replace(/\\/g, '/');
+//    return path.indexOf('Resources/') === 0 || path.indexOf('/Resources/') !== -1;
+//};
+JS.mixin(ResourcesBundle.prototype, {
+
+    init: function (pathToUuid) {
+        JS.mixin(this._pathToUuid, pathToUuid);
+    }
+
+    //isResUrl: function (url) {
+    //    var path = url.substr(url.indexOf('://') + 3);
+    //    return this.isResPath(path);
+    //},
+
+    //onAssetCreated: function (url, uuid) {
+    //    var path = url.substr(url.indexOf('://') + 3);
+    //    if (ResourcesBundle.isResPath(path)) {
+    //        this._add(path, uuid);
+    //    }
+    //}
+});
+
+/**
+ * Resources 模块允许你在运行时动态加载资源。资源以路径的形式标识，路径不能包含文件后缀名。
+ * Resources 能够使用路径加载项目里所有 `Resources` 目录下的资源，例如 `sprites/npc/001`。
+ * @class Resources
+ * @static
+ */
+var Resources = {
+
+    // {
+    //     baseDir: {string},
+    //     bundle: {AssetBundleBase},
+    // }
+    _mounts: [],
+
+    /**
+     * @property _resBundle
+     * @type ResourcesBundle
+     */
+    _resBundle: new ResourcesBundle(),
+
+    /**
+     * Note:
+     * All asset paths in Fireball use forward slashes, paths using backslashes will not work.
+     *
+     * @method mount
+     * @param {string} baseDir
+     * @param {AssetBundleBase} bundle
+     * @private
+     */
+    mount: function (baseDir, bundle) {
+        if (! baseDir && baseDir !== '') {
+            Fire.error('Invalid baseDir');
+        }
+        // trim path
+        baseDir = normalizePath(baseDir);
+        if (baseDir.slice(-1) === '/') {
+            baseDir = baseDir.slice(0, -1);
+        }
+        //
+        this._mounts.push({
+            baseDir: baseDir,
+            bundle: bundle
+        });
+    },
+
+    /**
+     * Loads asset with path from resources asynchronously.
+     *
+     * Note:
+     * All asset paths in Fireball use forward slashes, paths using backslashes will not work.
+     *
+     * @method load
+     * @param {string} path
+     * @param {function} callback
+     * @param {string} callback.param error - null or the error info
+     * @param {object} callback.param data - the loaded object or null
+     */
+    load: function (path, callback) {
+        if (! path) {
+            return callback('Argument must be non-nil', null);
+        }
+        path = normalizePath(path);
+
+        var mounts = this._mounts;
+        for (var i = mounts.length - 1; i >= 0; i--) {
+            var item = mounts[i];
+            var baseDir = item.baseDir;
+            var bundle = item.bundle;
+            if (baseDir === "") {
+                if (bundle.load(path, callback, true)) {
+                    return;
+                }
+            }
+            else if (path.slice(0, baseDir.length) === baseDir) {
+                var relative = path.slice(baseDir.length + 1);
+                if (bundle.load(relative, callback, true)) {
+                    return;
+                }
+            }
+        }
+        // not found
+        if (AssetBundleBase._hasWildcard(path)) {
+            return callback(null, []);
+        }
+        else {
+            return callback('Path not exists', null);
+        }
+    }
+};
+
+Fire.Resources = Resources;
+
+// mount resources by default
+
+Resources.mount('', Resources._resBundle);
+
 var FireMouseEvent = Fire.MouseEvent;
 //var FireKeyboardEvent = Fire.KeyboardEvent;
 
@@ -4772,8 +5331,8 @@ var Input = (function () {
      * !#zh 注册输入事件的回调方法。
      *
      * 请参考：
-     * - [获取用户输入](/zh/scripting/input)
-     * - [输入事件列表](/zh/scripting/input-events)
+     * - [获取用户输入](/manual/scripting/input)
+     * - [输入事件列表](/manual/scripting/input-events)
      *
      * @method on
      * @param {string} type - eg. "keydown", "click"

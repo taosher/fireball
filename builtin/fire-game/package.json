@@ -1,13 +1,13 @@
 {
   "name": "fire-game",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "Fireball builtin game view",
   "author": "Firebox Technology",
   "fireball": {
     "main": "editor/main.js",
     "menus": [
       {
-        "path": "Fireball/Panels/Game",
+        "path": "View/Panels/Game",
         "message": "fire-game:open"
       }
     ],
@@ -20,7 +20,7 @@
         "width": "auto",
         "height": "auto",
         "messages": [
-          "scene:dirty",
+          "scene:repaint",
           "gizmos:dirty"
         ]
       }

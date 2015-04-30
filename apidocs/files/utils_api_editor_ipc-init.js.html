@@ -15,7 +15,7 @@
         <div class="content">
             <div class="project-title">
                     <a href="http://docs-zh.fireball-x.com"><img class="logo" src="http://docs-zh.fireball-x.com/images/logo.png" title="Fireball Engine API"></a>
-                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.2.2</span>
+                    <h1 class="project-name">Fireball Engine API</h1> <span class="project-version">0.3.0</span>
                     <p class="description">Fireball is the game engine for the future.</p>
             </div>
             <ul class="jump-links">
@@ -45,6 +45,7 @@
                             <li><a class="type" href="../classes/_ObjectFlags.html">_ObjectFlags</a></li>
                             <li><a class="type" href="../classes/_Runtime.RenderContext.html">_Runtime.RenderContext</a></li>
                             <li><a class="type" href="../classes/Asset.html">Asset</a></li>
+                            <li><a class="type" href="../classes/AssetBundleBase.html">AssetBundleBase</a></li>
                             <li><a class="type" href="../classes/AssetLibrary.html">AssetLibrary</a></li>
                             <li><a class="type" href="../classes/AudioClip.html">AudioClip</a></li>
                             <li><a class="type" href="../classes/AudioSource.html">AudioSource</a></li>
@@ -77,8 +78,11 @@
                             <li><a class="type" href="../classes/MouseEvent.html">MouseEvent</a></li>
                             <li><a class="type" href="../classes/NoScale.html">NoScale</a></li>
                             <li><a class="type" href="../classes/Path.html">Path</a></li>
+                            <li><a class="type" href="../classes/Playable.html">Playable</a></li>
                             <li><a class="type" href="../classes/Rect.html">Rect</a></li>
                             <li><a class="type" href="../classes/Renderer.html">Renderer</a></li>
+                            <li><a class="type" href="../classes/Resources.html">Resources</a></li>
+                            <li><a class="type" href="../classes/ResourcesBundle.html">ResourcesBundle</a></li>
                             <li><a class="type" href="../classes/Screen.html">Screen</a></li>
                             <li><a class="type" href="../classes/Screen.ContainerStrategy.html">Screen.ContainerStrategy</a></li>
                             <li><a class="type" href="../classes/Screen.ContentStrategy.html">Screen.ContentStrategy</a></li>
@@ -229,6 +233,7 @@
                  * @param {string} request - the request to send
                  * @param {any} [...arg] - whatever arguments the message needs
                  * @param {function} reply - the callback used to handle replied arguments
+                 * @return {number} - session id, can be used in Editor.cancelRequestToCore
                  */
                 Editor.sendRequestToCore = function (request) {
                     &#x27;use strict&#x27;;
@@ -243,6 +248,7 @@
                             replyCallbacks[key] = reply;
                 
                             Ipc.send(&#x27;editor:sendreq2core&#x27;, request, args, sessionId);
+                            return sessionId;
                         }
                         else {
                             Fire.error(&#x27;The reply must be of type function&#x27;);
@@ -250,6 +256,16 @@
                     }
                     else {
                         Fire.error(&#x27;The request must be of type string&#x27;);
+                    }
+                    return -1;
+                };
+                
+                Editor.cancelRequestToCore = function (sessionId) {
+                    &#x27;use strict&#x27;;
+                    var key = &quot;&quot; + sessionId;
+                    var cb = replyCallbacks[key];
+                    if ( cb ) {
+                        delete replyCallbacks[key];
                     }
                 };
                 
@@ -265,9 +281,9 @@
                         //}
                         delete replyCallbacks[key];
                     }
-                    else {
-                        Fire.error(&#x27;non-exists callback of session:&#x27;, sessionId);
-                    }
+                    // else {
+                    //     Fire.error(&#x27;non-exists callback of session:&#x27;, sessionId);
+                    // }
                 });
                 
                 Ipc.on(&#x27;editor:send2panel&#x27;, function () {
