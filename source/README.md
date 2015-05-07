@@ -47,11 +47,13 @@ Fireball
   |--engine-framework (a Entity-Component interface for connecting Fireball Editor and other game engines)
   |--editor-framework (The backbone of Fireball editor, a framework for easy dockable editor making)
   |--asset-database (Assets and data management system, integrated with VCS and custom data interpreter)
-  |--*fireball-editor (Fireball editor, based on editor-framework and Polymer)
+  |--fireball-editor (Fireball editor, based on editor-framework and Polymer)
   |--packages
       |--packageA
       |--packageB
       |--etc...
 ```
 
-Once the refactoring is finished, most of the repos will be public. And developers can utilize **Engine-Framework**, **Editor-Framework** and **Asset-Database** to combine their favorite game engine and editor tools to make the perfect game development toolset they need.
+Once the refactoring is finished, all repos will be public. And developers can utilize **Engine-Framework**, **Editor-Framework** and **Asset-Database** to combine their favorite game engine and editor tools to make the perfect game development toolset they need.
+
+By then, you can access full source code in this repo. Follow this repo to keep up with the latest development and changes of Fireball.
