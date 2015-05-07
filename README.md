@@ -1,12 +1,16 @@
+[![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/fireball-x/fireball?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
+Fireball is a hackable game editor for creating mobile and HTML5 games, built with extremely extendable structure.
+
 ![Fireball Game Engine](https://cloud.githubusercontent.com/assets/344547/6882303/a8b7a740-d5ba-11e4-9518-e6494b1c94fa.png)
 
-Fireball is a next-gen Html5 game engine built with extremely extendable structure. The core of Fireball is an editor UI engine and an asset engine with tree view, scene view and property inspector. Beyond that are all plugins. We designed Fireball to be deeply customizable. Developers can create their own editor and plugins very easily. The editor features are deeply inspired by [Unity](http://unity3d.com/) which we believe has the most advanced game developing editor at the moment.
+The core of Fireball is an editor UI engine and an asset engine with tree view, scene view and property inspector. Beyond that are all plugins. We designed Fireball to be deeply customizable. Developers can create their own editor and plugins very easily. The editor features are deeply inspired by [Unity](http://unity3d.com/) which we believe has the most advanced game developing editor at the moment.
 
-The desktop version of Fireball is cross-platform powered by [Atom-shell](https://github.com/fireball-x/atom-shell). Currently we test our distribution on Mac and Windows 7/8.1. Issues on other platform are welcome!
+Fireball is a cross-platform software powered by [Electron](https://github.com/fireball-x/electron) and [Polymer](http://www.polymer-project.org/). Currently we test our distribution on Mac and Windows 7/8.1. Issues on other platform are welcome!
 
 Visit [Fireball-x.com](http://www.fireball-x.com/en) to learn more or visit the Fireball forum.
 
-Visit issue to learn more about the Fireball 1.0 roadmap.
+Learn what's going on from [Fireball Beta Roadmap](https://github.com/fireball-x/fireball/issues/3).
 
 ## Download
 
