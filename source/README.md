@@ -9,7 +9,7 @@ Fireball contains several submodule repos. Some of them are open sourced, others
 - [Core](https://github.com/fireball-x/core) - The basic classes used in fireball engine and editors
 - [Engine](https://github.com/fireball-x/engine) - An Entity/Compnoent system designed for both game and editors
 
-After beta, we will refactor these two repos in one, called engine-framework. After that it can be used standalone, and is easy to integrate with your favorite runtime ( cocos2d-js, pixi.js even three.js ).
+After beta, we will refactor these two repos and make them into one, called engine-framework. After that it can be used standalone, and is easy to integrate with your favorite runtime ( cocos2d-js, pixi.js even three.js ).
 
 ### Tool Modules
 
